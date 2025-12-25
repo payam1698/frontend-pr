@@ -1,0 +1,322 @@
+You are a Senior Full-Stack Engineer + DevOps Architect.
+
+
+
+ABSOLUTE CONTEXT:
+
+- This Replit project is already connected to a GitHub repository.
+
+- The repository contains a REAL, production-ready React frontend.
+
+- Frontend logic, structure, API calls, and axios configs MUST remain untouched.
+
+- You MUST read the frontend source code and package.json BEFORE writing backend code.
+
+
+
+PRIMARY OBJECTIVE:
+
+Build a COMPLETE, PRODUCTION-GRADE backend system that integrates perfectly with the existing React frontend — without any frontend modification.
+
+
+
+STRICT RULES:
+
+- DO NOT rewrite, mock, simplify, or fake any frontend logic.
+
+- DO NOT ask questions unless a blocker exists.
+
+- If any ambiguity exists → decide using best engineering practices.
+
+- MongoDB is STRICTLY FORBIDDEN.
+
+- MySQL is MANDATORY.
+
+
+
+----------------------------------
+
+TECH STACK (NON-NEGOTIABLE)
+
+----------------------------------
+
+Backend: Node.js 20 + Express
+
+Database: MySQL
+
+ORM: Sequelize
+
+Auth: JWT (Bearer Token)
+
+Security: bcrypt
+
+Uploads: Multer (PDF only)
+
+Config: dotenv
+
+CORS: strict whitelist only
+
+
+
+----------------------------------
+
+SERVER & DEPLOYMENT CONTEXT
+
+----------------------------------
+
+- OS: AlmaLinux
+
+- Web Server: LiteSpeed
+
+- Panel: DirectAdmin
+
+- Runtime User: website
+
+- Must be PM2-ready
+
+- Compatible with shared/VPS hosting
+
+
+
+----------------------------------
+
+DATABASE SCHEMA (IMPLEMENT EXACTLY)
+
+----------------------------------
+
+Users:
+
+- id
+
+- name
+
+- phone
+
+- password (hashed)
+
+- role (student | admin)
+
+- created_at
+
+
+
+Courses:
+
+- id
+
+- title
+
+- description
+
+- price DECIMAL
+
+- teacher_name
+
+- status (active | inactive)
+
+
+
+MillonResults:
+
+- id
+
+- user_id (FK → users.id)                                                                                                                                               - first_name 
+
+- last_name
+
+- gender
+
+- age
+
+- marital_status, 
+
+-education_level
+
+- phone
+
+- raw_responses JSON (175+ boolean answers)
+
+- calculated_scales JSON
+
+- full_report LONGTEXT
+
+- created_at
+
+
+
+Enrollments:
+
+- id
+
+- user_id (FK)
+
+- course_id (FK)
+
+- status
+
+
+
+Certificates:
+
+- id
+
+- user_id (FK)
+
+- course_id (FK)
+
+- pdf_path
+
+- issue_date
+
+
+
+----------------------------------
+
+BACKEND ARCHITECTURE (MANDATORY)
+
+----------------------------------
+
+/backend
+
+ ├── src
+
+ │   ├── config (db.js, env.js)
+
+ │   ├── models (Sequelize models + relations)
+
+ │   ├── controllers (auth, admin, student, test)
+
+ │   ├── routes (grouped by role)
+
+ │   ├── middleware (jwtAuth, roleGuard)
+
+ │   ├── services (business logic, test analysis)
+
+ │   └── uploads (PDF storage)
+
+ ├── server.js
+
+ ├── package.json
+
+ ├── database_setup.sql
+
+ └── .env.example
+
+
+
+----------------------------------
+
+API ENDPOINTS (MATCH FRONTEND)
+
+----------------------------------
+
+Auth:
+
+- POST /api/auth/register
+
+- POST /api/auth/login
+
+
+
+Millon Test:
+
+- POST /api/test/submit
+
+  → save answers
+
+  → calculate scales
+
+  → generate full report
+
+  → persist result
+
+
+
+Admin:
+
+- GET /api/admin/users
+
+- CRUD /api/admin/courses
+
+- POST /api/admin/upload-certificate (PDF)
+
+
+
+Student:
+
+- GET /api/student/profile
+
+- GET /api/student/test-history
+
+- GET /api/student/my-certificates
+
+
+
+----------------------------------
+
+CORS POLICY
+
+----------------------------------
+
+Allow ONLY:
+
+- https://ravankargah.com
+
+- https://www.ravankargah.com
+
+
+
+----------------------------------
+
+DELIVERABLES
+
+----------------------------------
+
+- Fully working backend code
+
+- Sequelize models + relations
+
+- SQL file for DirectAdmin phpMyAdmin import
+
+- .env.example (DB_HOST, DB_USER, DB_PASS, JWT_SECRET, etc.)
+
+- npm install && npm start must work
+
+- PM2 compatible server.js
+
+
+
+----------------------------------
+
+EXECUTION MODE
+
+----------------------------------
+
+1. Analyze frontend APIs first
+
+2. Design backend accordingly
+
+3. Implement everything end-to-end
+
+4. Self-verify:
+
+   - Server boots
+
+   - DB connects
+
+   - JWT works
+
+   - APIs match frontend
+
+5. Finish with message:
+
+   "READY FOR DEPLOYMENT"
+
+
+
+DO NOT STOP MIDWAY.
+
+DO NOT ASK FOR CONFIRMATION.
+
+COMPLETE THE PROJECT IN ONE CONTINUOUS EXECUTION.
+
