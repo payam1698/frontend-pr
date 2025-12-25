@@ -60,16 +60,22 @@ app.use((req, res) => {
 
 const startServer = async () => {
   try {
-    const dbConnected = await connectDB();
+    const skipDb = process.env.SKIP_DB === 'true' || !process.env.DB_HOST;
     
-    if (dbConnected) {
-      await syncDatabase(false);
-      console.log('Database synchronized.');
+    if (!skipDb) {
+      const dbConnected = await connectDB();
+      if (dbConnected) {
+        await syncDatabase(false);
+        console.log('Database synchronized.');
+      } else {
+        console.warn('Running without database connection. API endpoints requiring DB will not work.');
+      }
     } else {
-      console.warn('Running without database connection. Some features may not work.');
+      console.log('Skipping database connection (SKIP_DB=true or no DB_HOST configured).');
+      console.log('Configure MySQL in production with proper DB_* environment variables.');
     }
 
-    app.listen(config.server.port, 'localhost', () => {
+    app.listen(config.server.port, '0.0.0.0', () => {
       console.log(`Server running on http://localhost:${config.server.port}`);
       console.log(`Environment: ${config.server.nodeEnv}`);
       console.log('READY FOR DEPLOYMENT');
