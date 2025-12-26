@@ -1,30 +1,24 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { ScoreReport } from '../utils/mcmiScoring';
+import axios from 'axios';
+
+// آدرس بک‌اِند ریپلیت شما - پورت 3001
+const API_URL = "https://frontend-pr--mesmaeeilz.replit.app:3001/api";
 
 export interface UserData {
+  id?: number;
   fullNameFa: string;
   fullNameEn: string;
-  age: number;
-  gender: 'male' | 'female';
-  education: string;
-  maritalStatus: string;
-  mobile: string; // Username
-  nationalCode: string; // Password
-  role: 'admin' | 'user';
-  mcmiStatus?: 'none' | 'approved'; // Simplified status
-  mcmiReport?: ScoreReport | null;
+  phone: string; 
+  role: 'admin' | 'student';
+  // سایر فیلدها طبق دیتابیس
 }
 
 interface AuthContextType {
   user: UserData | null;
-  login: (mobile: string, code: string) => boolean;
-  register: (data: UserData) => void;
-  updateUser: (data: Partial<UserData>) => void;
+  login: (phone: string, password: string) => Promise<boolean>;
+  register: (data: any) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
-  // Admin helpers
-  getAllUsers: () => UserData[];
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,84 +26,53 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserData | null>(null);
 
-  // Load user from local storage on mount
+  // چک کردن توکن هنگام لود شدن سایت
   useEffect(() => {
+    const token = localStorage.getItem('token');
     const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
+    if (token && storedUser) {
       setUser(JSON.parse(storedUser));
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     }
   }, []);
 
-  const updateUser = (data: Partial<UserData>) => {
-    if (!user) return;
-    const updatedUser = { ...user, ...data };
-    setUser(updatedUser);
-    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+  const login = async (phone: string, password: string): Promise<boolean> => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/login`, { phone, password });
+      const { token, user: userData } = response.data;
 
-    // Update in the registered users list as well to persist across sessions
-    const usersStr = localStorage.getItem('registeredUsers');
-    if (usersStr) {
-        const users: UserData[] = JSON.parse(usersStr);
-        const index = users.findIndex(u => u.mobile === user.mobile);
-        if (index !== -1) {
-            users[index] = updatedUser;
-            localStorage.setItem('registeredUsers', JSON.stringify(users));
-        }
-    }
-  };
+      localStorage.setItem('token', token);
+      localStorage.setItem('currentUser', JSON.stringify(userData));
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-  const login = (mobile: string, code: string): boolean => {
-    const usersStr = localStorage.getItem('registeredUsers');
-    const users: UserData[] = usersStr ? JSON.parse(usersStr) : [];
-    
-    const foundUser = users.find(u => u.mobile === mobile && u.nationalCode === code);
-
-    if (foundUser) {
-      // Simulate Admin logic (Backdoor for demo)
-      if (mobile === '09120000000' && foundUser.role !== 'admin') {
-          foundUser.role = 'admin';
-      }
-      
-      setUser(foundUser);
-      localStorage.setItem('currentUser', JSON.stringify(foundUser));
+      setUser(userData);
       return true;
+    } catch (error) {
+      console.error("Login Error:", error);
+      return false;
     }
-    return false;
   };
 
-  const register = (data: UserData) => {
-    const usersStr = localStorage.getItem('registeredUsers');
-    const users: UserData[] = usersStr ? JSON.parse(usersStr) : [];
-    
-    const existingIndex = users.findIndex(u => u.mobile === data.mobile);
-    
-    // Default to user, ensure mcmiStatus is none
-    const newUser = { ...data, role: data.role || 'user', mcmiStatus: 'none' as const };
-
-    if (existingIndex >= 0) {
-        users[existingIndex] = newUser; 
-    } else {
-        users.push(newUser);
+  const register = async (data: any) => {
+    try {
+      await axios.post(`${API_URL}/auth/register`, data);
+      // بعد از ثبت‌نام، یوزر می‌تواند لاگین کند
+    } catch (error) {
+      console.error("Registration Error:", error);
+      throw error;
     }
-    
-    localStorage.setItem('registeredUsers', JSON.stringify(users));
   };
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('token');
     localStorage.removeItem('currentUser');
-  };
-
-  // --- Admin Helpers ---
-  const getAllUsers = (): UserData[] => {
-    const usersStr = localStorage.getItem('registeredUsers');
-    return usersStr ? JSON.parse(usersStr) : [];
+    delete axios.defaults.headers.common['Authorization'];
   };
 
   return (
     <AuthContext.Provider value={{ 
-      user, login, register, updateUser, logout, isAuthenticated: !!user,
-      getAllUsers
+      user, login, register, logout, isAuthenticated: !!user 
     }}>
       {children}
     </AuthContext.Provider>
