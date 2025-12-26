@@ -6,7 +6,7 @@ import axios from 'axios';
  * نکته: اگر از HTTPS استفاده می‌کنید و خطای Mixed Content گرفتید، 
  * سایت را با http://ravankargah.com باز کنید یا تنظیمات .htaccess را اعمال کنید.
  */
-const API_URL = "http://ravankargah.com:3001/api";
+const API_URL = "http://185.88.179.232:3001/api";
 
 export interface UserData {
   id?: number;
