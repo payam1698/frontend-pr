@@ -1,14 +1,14 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { UserPlus, CheckCircle } from 'lucide-react';
 import Button from '../components/Button';
-import { useAuth, UserData } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 const RegisterPage: React.FC = () => {
   const { register } = useAuth();
   const [success, setSuccess] = useState(false);
-  
+  const [error, setError] = useState('');
+
   const [formData, setFormData] = useState({
     fullNameFa: '',
     fullNameEn: '',
@@ -21,24 +21,35 @@ const RegisterPage: React.FC = () => {
     confirmNationalCode: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setError('');
+
     if (formData.nationalCode !== formData.confirmNationalCode) {
-      alert('کد ملی و تکرار آن مطابقت ندارند.');
+      setError('کد ملی و تکرار آن مطابقت ندارند.');
       return;
     }
 
-    const { confirmNationalCode, age, ...rest } = formData;
-
-    const userData: UserData = {
-      ...rest,
-      age: parseInt(age) || 0,
-      role: 'user'
+    // نگاشت داده‌های فرم به ساختار مورد انتظار بک‌اِند (بسیار مهم)
+    const userData = {
+      name: formData.fullNameFa,           // در بک‌اِند شما 'name' الزامی است
+      full_name_en: formData.fullNameEn,   // مطابق دیتابیس شما
+      phone: formData.mobile,              // در بک‌اِند شما 'phone' الزامی است
+      password: formData.nationalCode,      // کد ملی به عنوان پسورد
+      age: parseInt(formData.age) || 0,
+      gender: formData.gender,
+      education: formData.education,
+      marital_status: formData.maritalStatus,
+      role: 'student'                      // نقش پیش‌فرض
     };
 
-    register(userData);
-    setSuccess(true);
+    try {
+      const result = await register(userData);
+      // فرض بر این است که تابع register در صورت خطا، یک Error پرتاب می‌کند یا نتیجه را برمی‌گرداند
+      setSuccess(true);
+    } catch (err: any) {
+      setError(err.message || 'خطا در برقراری ارتباط با سرور');
+    }
   };
 
   if (success) {
@@ -69,34 +80,40 @@ const RegisterPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
       <div className="max-w-2xl w-full bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-        <div className="bg-brand p-6 text-center text-white">
+        <div className="bg-brand p-6 text-center text-white" style={{ backgroundColor: '#2563eb' }}>
           <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
             <UserPlus className="h-8 w-8 text-white" />
           </div>
           <h2 className="text-2xl font-bold">ایجاد حساب کاربری</h2>
-          <p className="text-brand-light mt-2">برای دسترسی به خدمات روانکارگاه ثبت نام کنید</p>
+          <p className="text-blue-100 mt-2">برای دسترسی به خدمات روانکارگاه ثبت نام کنید</p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
+          {error && (
+            <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm border border-red-100">
+              {error}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">نام و نام خانوادگی (فارسی)</label>
               <input
                 type="text"
                 required
-                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
+                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
                 value={formData.fullNameFa}
                 onChange={e => setFormData({...formData, fullNameFa: e.target.value})}
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">نام و نام خانوادگی (انگلیسی)</label>
               <input
                 type="text"
                 required
                 dir="ltr"
-                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
+                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
                 value={formData.fullNameEn}
                 onChange={e => setFormData({...formData, fullNameEn: e.target.value})}
               />
@@ -109,7 +126,7 @@ const RegisterPage: React.FC = () => {
                 required
                 min="10"
                 max="100"
-                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
+                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
                 value={formData.age}
                 onChange={e => setFormData({...formData, age: e.target.value})}
               />
@@ -118,7 +135,7 @@ const RegisterPage: React.FC = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">جنسیت</label>
               <select
-                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
+                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
                 value={formData.gender}
                 onChange={e => setFormData({...formData, gender: e.target.value as 'male' | 'female'})}
               >
@@ -132,7 +149,7 @@ const RegisterPage: React.FC = () => {
               <input
                 type="text"
                 required
-                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
+                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
                 value={formData.education}
                 onChange={e => setFormData({...formData, education: e.target.value})}
               />
@@ -141,7 +158,7 @@ const RegisterPage: React.FC = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">وضعیت تأهل</label>
               <select
-                 className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
+                 className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
                  value={formData.maritalStatus}
                  onChange={e => setFormData({...formData, maritalStatus: e.target.value})}
               >
@@ -150,9 +167,9 @@ const RegisterPage: React.FC = () => {
                  <option value="متاهل">متاهل</option>
               </select>
             </div>
-            
+
             <div className="md:col-span-2 border-t border-gray-100 pt-4 mt-2">
-                 <h3 className="text-sm font-bold text-brand mb-4">اطلاعات ورود به سامانه</h3>
+                 <h3 className="text-sm font-bold text-blue-600 mb-4">اطلاعات ورود به سامانه</h3>
             </div>
 
             <div className="md:col-span-2">
@@ -162,7 +179,7 @@ const RegisterPage: React.FC = () => {
                 required
                 dir="ltr"
                 placeholder="0912..."
-                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand text-center tracking-widest font-sans font-bold"
+                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 text-center tracking-widest font-sans font-bold outline-none"
                 value={formData.mobile}
                 onChange={e => setFormData({...formData, mobile: e.target.value})}
               />
@@ -174,7 +191,7 @@ const RegisterPage: React.FC = () => {
                 type="password"
                 required
                 dir="ltr"
-                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand text-center tracking-widest font-sans font-bold"
+                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 text-center tracking-widest font-sans font-bold outline-none"
                 value={formData.nationalCode}
                 onChange={e => setFormData({...formData, nationalCode: e.target.value})}
               />
@@ -186,7 +203,7 @@ const RegisterPage: React.FC = () => {
                 type="password"
                 required
                 dir="ltr"
-                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand text-center tracking-widest font-sans font-bold"
+                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 text-center tracking-widest font-sans font-bold outline-none"
                 value={formData.confirmNationalCode}
                 onChange={e => setFormData({...formData, confirmNationalCode: e.target.value})}
               />
@@ -196,7 +213,7 @@ const RegisterPage: React.FC = () => {
           <div className="pt-6">
             <Button className="w-full py-3 text-lg" type="submit">ثبت نام</Button>
             <p className="text-center text-sm text-gray-500 mt-4">
-              قبلاً ثبت نام کرده‌اید؟ <Link to="/login" className="text-brand font-bold hover:underline">وارد شوید</Link>
+              قبلاً ثبت نام کرده‌اید؟ <Link to="/login" className="text-blue-600 font-bold hover:underline">وارد شوید</Link>
             </p>
           </div>
         </form>
