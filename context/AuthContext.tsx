@@ -1,8 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-// آدرس بک‌اِند شما
-const API_URL = "https://frontend-pr--mesmaeeilz.replit.app:3001/api";
+/**
+ * تنظیم آدرس بک‌اِند بر اساس دامنه شما و پورت فعال PM2
+ * نکته: اگر از HTTPS استفاده می‌کنید و خطای Mixed Content گرفتید، 
+ * سایت را با http://ravankargah.com باز کنید یا تنظیمات .htaccess را اعمال کنید.
+ */
+const API_URL = "http://ravankargah.com:3001/api";
 
 export interface UserData {
   id?: number;
@@ -20,20 +24,29 @@ interface AuthContextType {
   isAuthenticated: boolean;
 }
 
-// ۱. اضافه کردن کلمه export به ابتدای تعریف Context
+// صادر کردن Context برای استفاده در کل پروژه
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // بررسی وضعیت ورود کاربر هنگام بارگذاری اولیه سایت
   useEffect(() => {
     const initAuth = async () => {
       const token = localStorage.getItem('token');
       const storedUser = localStorage.getItem('currentUser');
+
       if (token && storedUser) {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        setUser(JSON.parse(storedUser));
+        try {
+          // قرار دادن توکن در تمام درخواست‌های بعدی axios
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          setUser(JSON.parse(storedUser));
+        } catch (error) {
+          console.error("Error parsing stored user:", error);
+          localStorage.removeItem('token');
+          localStorage.removeItem('currentUser');
+        }
       }
       setLoading(false);
     };
@@ -44,18 +57,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await axios.post(`${API_URL}/auth/login`, { phone, password });
       const { token, user: userData } = response.data;
+
       localStorage.setItem('token', token);
       localStorage.setItem('currentUser', JSON.stringify(userData));
+
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setUser(userData);
       return true;
     } catch (error) {
+      console.error("Login attempt failed:", error);
       return false;
     }
   };
 
   const register = async (data: any) => {
-    await axios.post(`${API_URL}/auth/register`, data);
+    try {
+      await axios.post(`${API_URL}/auth/register`, data);
+    } catch (error) {
+      console.error("Registration error:", error);
+      throw error;
+    }
   };
 
   const logout = () => {
@@ -72,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-// ۲. حتماً این تابع را در انتهای فایل اضافه یا اصلاح کنید
+// هوک اختصاصی برای دسترسی راحت به اطلاعات کاربری در کامپوننت‌ها (مثل Navbar)
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
