@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = (import.meta as any).env?.VITE_API_URL || "http://localhost:3001/api"; 
+// آدرس بک‌اِند شما
+const API_URL = "https://frontend-pr--mesmaeeilz.replit.app:3001/api";
 
 export interface UserData {
   id?: number;
@@ -9,7 +10,6 @@ export interface UserData {
   fullNameEn: string;
   phone: string; 
   role: 'admin' | 'student';
-  mcmiStatus?: 'none' | 'approved';
 }
 
 interface AuthContextType {
@@ -20,35 +20,20 @@ interface AuthContextType {
   isAuthenticated: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-axios.defaults.baseURL = API_URL;
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+// ۱. اضافه کردن کلمه export به ابتدای تعریف Context
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true); // اضافه کردن حالت لودینگ برای جلوگیری از پرش صفحه
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const initAuth = async () => {
       const token = localStorage.getItem('token');
       const storedUser = localStorage.getItem('currentUser');
-
       if (token && storedUser) {
-        try {
-          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          // اختیاری: می‌توانید اینجا یک درخواست به /auth/me بزنید تا از صحت توکن مطمئن شوید
-          setUser(JSON.parse(storedUser));
-        } catch (e) {
-          logout();
-        }
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        setUser(JSON.parse(storedUser));
       }
       setLoading(false);
     };
@@ -57,29 +42,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (phone: string, password: string): Promise<boolean> => {
     try {
-      // توجه: در بک‌اِند شما فیلد پسورد احتمالاً nationalCode است، چک کنید
-      const response = await axios.post(`/auth/login`, { phone, password });
+      const response = await axios.post(`${API_URL}/auth/login`, { phone, password });
       const { token, user: userData } = response.data;
-
       localStorage.setItem('token', token);
       localStorage.setItem('currentUser', JSON.stringify(userData));
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
       setUser(userData);
       return true;
     } catch (error) {
-      console.error("Login Error:", error);
       return false;
     }
   };
 
   const register = async (data: any) => {
-    try {
-      await axios.post(`/auth/register`, data);
-    } catch (error) {
-      console.error("Registration Error:", error);
-      throw error;
-    }
+    await axios.post(`${API_URL}/auth/register`, data);
   };
 
   const logout = () => {
@@ -90,10 +66,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, login, register, logout, isAuthenticated: !!user 
-    }}>
+    <AuthContext.Provider value={{ user, login, register, logout, isAuthenticated: !!user }}>
       {!loading && children}
     </AuthContext.Provider>
   );
+};
+
+// ۲. حتماً این تابع را در انتهای فایل اضافه یا اصلاح کنید
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
