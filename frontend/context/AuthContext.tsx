@@ -37,16 +37,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const token = localStorage.getItem('token');
       const storedUser = localStorage.getItem('currentUser');
 
+      console.log('🔐 Auth Init - Token exists:', !!token);
+      console.log('🔐 Auth Init - Stored user exists:', !!storedUser);
+
       if (token && storedUser) {
         try {
+          const parsedUser = JSON.parse(storedUser);
           // قرار دادن توکن در تمام درخواست‌های بعدی axios
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          setUser(JSON.parse(storedUser));
+          setUser(parsedUser);
+          console.log('✅ Auth Restored - Current Role:', parsedUser.role?.toUpperCase());
+          console.log('✅ Auth Restored - User:', parsedUser.name);
         } catch (error) {
           console.error("Error parsing stored user:", error);
           localStorage.removeItem('token');
           localStorage.removeItem('currentUser');
         }
+      } else {
+        console.log('⚠️ No auth data found - User not logged in');
       }
       setLoading(false);
     };
@@ -63,6 +71,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setUser(userData);
+      
+      console.log('🔑 Login Success - Current Role:', userData.role?.toUpperCase());
+      console.log('🔑 Login Success - User:', userData.name);
       return true;
     } catch (error) {
       console.error("Login attempt failed:", error);
