@@ -22,6 +22,7 @@ A full-stack web application for Ravankargah Psychology Institute (روانکا�
 │   └── package.json    # Frontend dependencies
 │
 ├── backend/            # Node.js + Express API
+│   ├── public/         # Built frontend files (production)
 │   ├── src/
 │   │   ├── config/     # Database and env configuration
 │   │   ├── models/     # Sequelize models
@@ -31,7 +32,6 @@ A full-stack web application for Ravankargah Psychology Institute (روانکا�
 │   │   ├── services/   # Business logic (MCMI scoring)
 │   │   └── uploads/    # PDF certificate storage
 │   ├── server.js       # Main Express server
-│   ├── database_setup.sql  # MySQL schema
 │   └── package.json    # Backend dependencies
 │
 ├── package.json        # Root package with run scripts
@@ -43,21 +43,21 @@ A full-stack web application for Ravankargah Psychology Institute (روانکا�
 - **Build Tool**: Vite 6
 - **Styling**: Tailwind CSS (CDN)
 - **Routing**: React Router DOM
-- **Port**: 5000
-- **API Proxy**: Routes `/api/*` requests to backend on port 3001
+- **Port**: 5000 (dev), served from backend in production
+- **API Proxy**: Routes `/api/*` requests to backend on port 3000
 
-### Backend (Express + MySQL)
+### Backend (Express + PostgreSQL)
 - **Framework**: Express.js with ES Modules
-- **Database**: MySQL with Sequelize ORM
-- **Authentication**: JWT with bcrypt
+- **Database**: PostgreSQL (Replit Neon) with Sequelize ORM
+- **Authentication**: JWT with bcrypt password hashing
 - **File Uploads**: Multer (PDF only)
-- **Port**: 3001 (uses process.env.PORT)
+- **Port**: 3000 (uses process.env.PORT)
 
 ## Running the App
 
 ### In Replit (Recommended)
 Both workflows start automatically:
-- **Backend** workflow: Runs `cd backend && npm start` on port 3001
+- **Backend** workflow: Runs `cd backend && npm start` on port 3000
 - **Frontend** workflow: Runs `cd frontend && npm run dev` on port 5000
 
 ### Using Root Scripts
@@ -66,6 +66,7 @@ npm run dev           # Run both frontend and backend
 npm run backend       # Run backend only
 npm run frontend      # Run frontend only
 npm run install:all   # Install all dependencies
+npm run build         # Build frontend to backend/public
 ```
 
 ## API Endpoints
@@ -94,18 +95,21 @@ npm run install:all   # Install all dependencies
 - `GET /api/courses` - List active courses
 - `GET /api/health` - Health check
 
-## Database Setup
-For production with MySQL:
-1. Import `backend/database_setup.sql` via phpMyAdmin
-2. Configure environment variables (DB_HOST, DB_USER, etc.)
-3. Set SKIP_DB=false
+## Database Schema (PostgreSQL)
+Tables are auto-created by Sequelize on startup:
+- **users**: id, name, phone, password, role (student/admin), created_at
+- **courses**: id, title, description, price (DECIMAL), teacher_name, status (active/inactive)
+- **millon_results**: id, user_id (FK), raw_responses (JSON), calculated_scales (JSON), full_report (TEXT)
+- **enrollments**: id, user_id (FK), course_id (FK), status
+- **certificates**: id, user_id (FK), course_id (FK), pdf_path, issue_date
 
 ## Recent Changes
-- **2025-12-27**: Refactored project structure for Replit
-  - Moved frontend to /frontend directory
-  - Added Vite proxy for /api routes
-  - Created root-level package.json with run scripts
-  - Updated workflows for new structure
+- **2025-12-27**: Converted to PostgreSQL with Replit database
+  - Connected to Replit's PostgreSQL (Neon) using DATABASE_URL
+  - Backend now runs on port 3000
+  - Server serves static files from /backend/public
+  - Frontend builds to backend/public for production
+  - All tables auto-sync on startup
 
 ## User Preferences
 - Persian (Farsi) RTL interface
