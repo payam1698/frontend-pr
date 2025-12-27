@@ -9,32 +9,19 @@ A full-stack web application for Ravankargah Psychology Institute (روانکا�
 
 ## Project Architecture
 
-### Frontend (React + Vite)
-- **Framework**: React 18.2 with TypeScript
-- **Build Tool**: Vite 6
-- **Styling**: Tailwind CSS (CDN)
-- **Routing**: React Router DOM
-- **Port**: 5000
-
-### Backend (Express + MySQL)
-- **Framework**: Express.js with ES Modules
-- **Database**: MySQL with Sequelize ORM
-- **Authentication**: JWT with bcrypt
-- **File Uploads**: Multer (PDF only)
-- **Port**: 3001
-
-## Directory Structure
+### Directory Structure
 ```
 /
-├── frontend files (React)
+├── frontend/           # React + Vite frontend
 │   ├── components/     # Reusable UI components
 │   ├── context/        # React contexts (Auth, Course, Comment)
 │   ├── pages/          # Page components
 │   ├── data/           # Mock data and MCMI data
 │   ├── utils/          # Utility functions and MCMI scoring
-│   └── types.ts        # TypeScript interfaces
+│   ├── vite.config.ts  # Vite config with API proxy
+│   └── package.json    # Frontend dependencies
 │
-├── backend/
+├── backend/            # Node.js + Express API
 │   ├── src/
 │   │   ├── config/     # Database and env configuration
 │   │   ├── models/     # Sequelize models
@@ -45,7 +32,40 @@ A full-stack web application for Ravankargah Psychology Institute (روانکا�
 │   │   └── uploads/    # PDF certificate storage
 │   ├── server.js       # Main Express server
 │   ├── database_setup.sql  # MySQL schema
-│   └── .env.example    # Environment template
+│   └── package.json    # Backend dependencies
+│
+├── package.json        # Root package with run scripts
+└── attached_assets/    # Uploaded assets
+```
+
+### Frontend (React + Vite)
+- **Framework**: React 18.2 with TypeScript
+- **Build Tool**: Vite 6
+- **Styling**: Tailwind CSS (CDN)
+- **Routing**: React Router DOM
+- **Port**: 5000
+- **API Proxy**: Routes `/api/*` requests to backend on port 3001
+
+### Backend (Express + MySQL)
+- **Framework**: Express.js with ES Modules
+- **Database**: MySQL with Sequelize ORM
+- **Authentication**: JWT with bcrypt
+- **File Uploads**: Multer (PDF only)
+- **Port**: 3001 (uses process.env.PORT)
+
+## Running the App
+
+### In Replit (Recommended)
+Both workflows start automatically:
+- **Backend** workflow: Runs `cd backend && npm start` on port 3001
+- **Frontend** workflow: Runs `cd frontend && npm run dev` on port 5000
+
+### Using Root Scripts
+```bash
+npm run dev           # Run both frontend and backend
+npm run backend       # Run backend only
+npm run frontend      # Run frontend only
+npm run install:all   # Install all dependencies
 ```
 
 ## API Endpoints
@@ -62,48 +82,30 @@ A full-stack web application for Ravankargah Psychology Institute (روانکا�
 
 ### Admin (requires admin role)
 - `GET /api/admin/users` - List all users
-- `GET /api/admin/users/:id` - Get user details
 - `GET/POST/PUT/DELETE /api/admin/courses` - Course CRUD
 - `POST /api/admin/upload-certificate` - Upload certificate PDF
 
 ### Student
 - `GET /api/student/profile` - Get profile
 - `PUT /api/student/profile` - Update profile
-- `GET /api/student/test-history` - Get test results
-- `GET /api/student/my-certificates` - Get certificates
 - `POST /api/student/enroll` - Enroll in course
 
 ### Public
 - `GET /api/courses` - List active courses
-- `GET /api/courses/:id` - Get course details
 - `GET /api/health` - Health check
 
-## Database Schema
-- **users**: User accounts with roles (student/admin)
-- **courses**: Course catalog
-- **millon_results**: MCMI-II test results with raw responses and calculated scales
-- **enrollments**: Course enrollments with status
-- **certificates**: PDF certificates for course completion
-
-## Development Setup
-1. Frontend runs on port 5000 with Vite dev server
-2. Backend runs on port 3001 (set SKIP_DB=true to run without MySQL)
-
-## Production Deployment
-Target: AlmaLinux with LiteSpeed + DirectAdmin + MySQL
-
-1. Import `database_setup.sql` via phpMyAdmin
-2. Configure `.env` with MySQL credentials
-3. Run `npm install && npm start` or use PM2
-4. CORS configured for ravankargah.com domains
+## Database Setup
+For production with MySQL:
+1. Import `backend/database_setup.sql` via phpMyAdmin
+2. Configure environment variables (DB_HOST, DB_USER, etc.)
+3. Set SKIP_DB=false
 
 ## Recent Changes
-- **2025-12-25**: Initial backend implementation with Express + Sequelize
-  - Complete API matching frontend requirements
-  - JWT authentication with bcrypt password hashing
-  - MCMI-II test scoring service
-  - MySQL database schema with Sequelize models
-  - PDF certificate upload support
+- **2025-12-27**: Refactored project structure for Replit
+  - Moved frontend to /frontend directory
+  - Added Vite proxy for /api routes
+  - Created root-level package.json with run scripts
+  - Updated workflows for new structure
 
 ## User Preferences
 - Persian (Farsi) RTL interface
