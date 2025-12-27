@@ -5,7 +5,7 @@ import { useCourses } from '../context/CourseContext';
 import { useComments } from '../context/CommentContext';
 import { Course } from '../types';
 import Button from '../components/Button';
-import { CheckCircle, Trash2, Edit, Plus, BookOpen, MessageSquare, Star, Users, Phone, Calendar } from 'lucide-react';
+import { CheckCircle, Trash2, Edit, Plus, BookOpen, MessageSquare, Star, Users, Phone, Calendar, ClipboardList } from 'lucide-react';
 import { toPersianDigits, formatPrice } from '../utils';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -28,9 +28,11 @@ const AdminPanel: React.FC = () => {
   const { getPendingComments, approveComment, deleteComment } = useComments();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'comments' | 'courses' | 'users'>('comments');
+  const [activeTab, setActiveTab] = useState<'comments' | 'courses' | 'users' | 'tests'>('comments');
   const [users, setUsers] = useState<UserInfo[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
+  const [testResults, setTestResults] = useState<any[]>([]);
+  const [testsLoading, setTestsLoading] = useState(false);
   
   // Course Form State
   const [isEditing, setIsEditing] = useState(false);
@@ -74,7 +76,24 @@ const AdminPanel: React.FC = () => {
     if (activeTab === 'users' && users.length === 0) {
       loadUsers();
     }
+    if (activeTab === 'tests' && testResults.length === 0) {
+      loadTestResults();
+    }
   }, [activeTab]);
+
+  const loadTestResults = async () => {
+    setTestsLoading(true);
+    try {
+      const response = await axios.get('/api/admin/test-results');
+      if (response.data.success) {
+        setTestResults(response.data.data || []);
+      }
+    } catch (error) {
+      console.error('Error loading test results:', error);
+    } finally {
+      setTestsLoading(false);
+    }
+  };
 
   // --- Comment Handlers ---
   const handleApproveComment = (id: string) => {
@@ -169,6 +188,13 @@ const AdminPanel: React.FC = () => {
             >
                 <Users size={20} />
                 مدیریت کاربران ({toPersianDigits(users.length)})
+            </button>
+            <button 
+                onClick={() => setActiveTab('tests')}
+                className={`flex-1 py-4 text-center font-bold flex items-center justify-center gap-2 transition-colors ${activeTab === 'tests' ? 'bg-brand text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+            >
+                <ClipboardList size={20} />
+                نتایج آزمون‌ها ({toPersianDigits(testResults.length)})
             </button>
         </div>
 
@@ -380,6 +406,58 @@ const AdminPanel: React.FC = () => {
                                             {toPersianDigits(u.age)} سال
                                         </span>
                                     )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        )}
+
+        {activeTab === 'tests' && (
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                    <h2 className="text-xl font-bold text-gray-900">نتایج آزمون‌های میلون</h2>
+                    <span className="text-sm bg-white px-3 py-1 rounded-full shadow-sm border border-gray-200">{toPersianDigits(testResults.length)} نتیجه</span>
+                </div>
+                {testsLoading ? (
+                    <div className="p-12 text-center text-gray-500">
+                        در حال بارگذاری...
+                    </div>
+                ) : testResults.length === 0 ? (
+                    <div className="p-12 text-center text-gray-500">
+                        هیچ نتیجه آزمونی یافت نشد.
+                    </div>
+                ) : (
+                    <div className="divide-y divide-gray-100">
+                        {testResults.map((test: any) => (
+                            <div key={test.id} className="p-4 hover:bg-gray-50 transition-colors">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold">
+                                            {test.first_name?.charAt(0) || '?'}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-gray-900">
+                                                {test.first_name} {test.last_name}
+                                            </h3>
+                                            <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                                                <span>{test.gender === 'male' ? 'مرد' : 'زن'}</span>
+                                                {test.age && <span>{toPersianDigits(test.age)} سال</span>}
+                                                <span className="flex items-center gap-1">
+                                                    <Calendar size={12} />
+                                                    {new Date(test.createdAt).toLocaleDateString('fa-IR')}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="text-left">
+                                        {test.user && (
+                                            <span className="text-xs text-gray-500 block">
+                                                کاربر: {test.user.name} ({test.user.phone})
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         ))}

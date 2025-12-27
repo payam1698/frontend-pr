@@ -95,9 +95,36 @@ const McmiPage: React.FC = () => {
     }
   };
 
-  const finishTest = () => {
-    const result = calculateScores(answers, userInfo);
-    setReport(result);
+  const finishTest = async () => {
+    try {
+      // Submit to backend to save results
+      const response = await fetch('/api/test/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ answers, userInfo })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setReport(data.data.report);
+        console.log('✅ Test results saved successfully');
+      } else {
+        // Fallback to local calculation if backend fails
+        const result = calculateScores(answers, userInfo);
+        setReport(result);
+        console.error('Backend save failed, using local calculation');
+      }
+    } catch (error) {
+      // Fallback to local calculation
+      const result = calculateScores(answers, userInfo);
+      setReport(result);
+      console.error('Error submitting test:', error);
+    }
+    
     setStep('report');
     window.scrollTo(0, 0);
   };
