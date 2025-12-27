@@ -5,9 +5,22 @@ import { useCourses } from '../context/CourseContext';
 import { useComments } from '../context/CommentContext';
 import { Course } from '../types';
 import Button from '../components/Button';
-import { CheckCircle, Trash2, Edit, Plus, BookOpen, MessageSquare, Star } from 'lucide-react';
+import { CheckCircle, Trash2, Edit, Plus, BookOpen, MessageSquare, Star, Users, Phone, Calendar } from 'lucide-react';
 import { toPersianDigits, formatPrice } from '../utils';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+interface UserInfo {
+  id: number;
+  name: string;
+  phone: string;
+  role: string;
+  full_name_en?: string;
+  age?: number;
+  gender?: string;
+  education?: string;
+  createdAt: string;
+}
 
 const AdminPanel: React.FC = () => {
   const { user } = useAuth();
@@ -15,7 +28,9 @@ const AdminPanel: React.FC = () => {
   const { getPendingComments, approveComment, deleteComment } = useComments();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'comments' | 'courses'>('comments');
+  const [activeTab, setActiveTab] = useState<'comments' | 'courses' | 'users'>('comments');
+  const [users, setUsers] = useState<UserInfo[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
   
   // Course Form State
   const [isEditing, setIsEditing] = useState(false);
@@ -40,6 +55,26 @@ const AdminPanel: React.FC = () => {
       return;
     }
   }, [user, navigate]);
+
+  const loadUsers = async () => {
+    setUsersLoading(true);
+    try {
+      const response = await axios.get('/api/admin/users');
+      if (response.data.success) {
+        setUsers(response.data.data || []);
+      }
+    } catch (error) {
+      console.error('Error loading users:', error);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'users' && users.length === 0) {
+      loadUsers();
+    }
+  }, [activeTab]);
 
   // --- Comment Handlers ---
   const handleApproveComment = (id: string) => {
@@ -127,6 +162,13 @@ const AdminPanel: React.FC = () => {
             >
                 <BookOpen size={20} />
                 مدیریت دوره‌ها ({toPersianDigits(courses.length)})
+            </button>
+            <button 
+                onClick={() => setActiveTab('users')}
+                className={`flex-1 py-4 text-center font-bold flex items-center justify-center gap-2 transition-colors ${activeTab === 'users' ? 'bg-brand text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+            >
+                <Users size={20} />
+                مدیریت کاربران ({toPersianDigits(users.length)})
             </button>
         </div>
 
@@ -285,6 +327,64 @@ const AdminPanel: React.FC = () => {
                         </div>
                     </div>
                 </div>
+            </div>
+        )}
+
+        {activeTab === 'users' && (
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                    <h2 className="text-xl font-bold text-gray-900">لیست کاربران</h2>
+                    <span className="text-sm bg-white px-3 py-1 rounded-full shadow-sm border border-gray-200">{toPersianDigits(users.length)} کاربر</span>
+                </div>
+                {usersLoading ? (
+                    <div className="p-12 text-center text-gray-500">
+                        در حال بارگذاری...
+                    </div>
+                ) : users.length === 0 ? (
+                    <div className="p-12 text-center text-gray-500">
+                        هیچ کاربری یافت نشد.
+                    </div>
+                ) : (
+                    <div className="divide-y divide-gray-100">
+                        {users.map(u => (
+                            <div key={u.id} className="p-4 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold ${u.role === 'admin' ? 'bg-amber-500' : 'bg-brand'}`}>
+                                        {u.name?.charAt(0) || '?'}
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-gray-900">{u.name}</h3>
+                                        <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                                            <span className="flex items-center gap-1">
+                                                <Phone size={12} />
+                                                {u.phone}
+                                            </span>
+                                            <span className="flex items-center gap-1">
+                                                <Calendar size={12} />
+                                                {new Date(u.createdAt).toLocaleDateString('fa-IR')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${u.role === 'admin' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>
+                                        {u.role === 'admin' ? 'مدیر' : 'دانشجو'}
+                                    </span>
+                                    {u.gender && (
+                                        <span className="text-xs text-gray-500">
+                                            {u.gender === 'male' ? 'مرد' : u.gender === 'female' ? 'زن' : u.gender}
+                                        </span>
+                                    )}
+                                    {u.age && (
+                                        <span className="text-xs text-gray-500">
+                                            {toPersianDigits(u.age)} سال
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         )}
 
