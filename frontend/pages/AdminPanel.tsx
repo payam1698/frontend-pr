@@ -26,13 +26,10 @@ interface UserInfo {
 interface InstructorInfo {
   id: number;
   name: string;
-  name_en?: string;
   title?: string;
-  specialty?: string;
-  bio?: string;
+  experience?: string;
+  courses_description?: string;
   image?: string;
-  email?: string;
-  phone?: string;
   status: string;
   createdAt: string;
 }
@@ -56,12 +53,9 @@ const AdminPanel: React.FC = () => {
   const [editingInstructorId, setEditingInstructorId] = useState<number | null>(null);
   const [instructorForm, setInstructorForm] = useState({
     name: '',
-    name_en: '',
     title: '',
-    specialty: '',
-    bio: '',
-    email: '',
-    phone: '',
+    experience: '',
+    courses_description: '',
     status: 'active'
   });
   const [instructorImage, setInstructorImage] = useState<File | null>(null);
@@ -149,12 +143,9 @@ const AdminPanel: React.FC = () => {
   const resetInstructorForm = () => {
     setInstructorForm({
       name: '',
-      name_en: '',
       title: '',
-      specialty: '',
-      bio: '',
-      email: '',
-      phone: '',
+      experience: '',
+      courses_description: '',
       status: 'active'
     });
     setInstructorImage(null);
@@ -211,12 +202,9 @@ const AdminPanel: React.FC = () => {
   const handleEditInstructor = (instructor: InstructorInfo) => {
     setInstructorForm({
       name: instructor.name,
-      name_en: instructor.name_en || '',
       title: instructor.title || '',
-      specialty: instructor.specialty || '',
-      bio: instructor.bio || '',
-      email: instructor.email || '',
-      phone: instructor.phone || '',
+      experience: instructor.experience || '',
+      courses_description: instructor.courses_description || '',
       status: instructor.status
     });
     if (instructor.image) {
@@ -642,23 +630,13 @@ const AdminPanel: React.FC = () => {
                         </h2>
                         <form onSubmit={handleInstructorSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">نام (فارسی) *</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">نام *</label>
                                 <input
                                     type="text"
                                     required
                                     className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand"
                                     value={instructorForm.name}
                                     onChange={e => setInstructorForm({ ...instructorForm, name: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">نام (انگلیسی)</label>
-                                <input
-                                    type="text"
-                                    dir="ltr"
-                                    className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand text-left"
-                                    value={instructorForm.name_en}
-                                    onChange={e => setInstructorForm({ ...instructorForm, name_en: e.target.value })}
                                 />
                             </div>
                             <div>
@@ -671,44 +649,22 @@ const AdminPanel: React.FC = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">تخصص</label>
-                                <input
-                                    type="text"
-                                    className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand"
-                                    value={instructorForm.specialty}
-                                    onChange={e => setInstructorForm({ ...instructorForm, specialty: e.target.value })}
+                                <label className="block text-sm font-bold text-gray-700 mb-1">سوابق علمی و اجرایی</label>
+                                <textarea
+                                    rows={3}
+                                    className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand resize-none"
+                                    value={instructorForm.experience}
+                                    onChange={e => setInstructorForm({ ...instructorForm, experience: e.target.value })}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">ایمیل</label>
-                                <input
-                                    type="email"
-                                    dir="ltr"
-                                    className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand text-left"
-                                    value={instructorForm.email}
-                                    onChange={e => setInstructorForm({ ...instructorForm, email: e.target.value })}
+                                <label className="block text-sm font-bold text-gray-700 mb-1">دوره‌ها و کارگاه‌های آموزشی</label>
+                                <textarea
+                                    rows={3}
+                                    className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand resize-none"
+                                    value={instructorForm.courses_description}
+                                    onChange={e => setInstructorForm({ ...instructorForm, courses_description: e.target.value })}
                                 />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">تلفن</label>
-                                <input
-                                    type="text"
-                                    dir="ltr"
-                                    className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand text-left"
-                                    value={instructorForm.phone}
-                                    onChange={e => setInstructorForm({ ...instructorForm, phone: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">وضعیت</label>
-                                <select
-                                    className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand"
-                                    value={instructorForm.status}
-                                    onChange={e => setInstructorForm({ ...instructorForm, status: e.target.value })}
-                                >
-                                    <option value="active">فعال</option>
-                                    <option value="inactive">غیرفعال</option>
-                                </select>
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">تصویر</label>
@@ -740,13 +696,15 @@ const AdminPanel: React.FC = () => {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">بیوگرافی</label>
-                                <textarea
-                                    rows={2}
-                                    className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand resize-none"
-                                    value={instructorForm.bio}
-                                    onChange={e => setInstructorForm({ ...instructorForm, bio: e.target.value })}
-                                />
+                                <label className="block text-sm font-bold text-gray-700 mb-1">وضعیت</label>
+                                <select
+                                    className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand"
+                                    value={instructorForm.status}
+                                    onChange={e => setInstructorForm({ ...instructorForm, status: e.target.value })}
+                                >
+                                    <option value="active">فعال</option>
+                                    <option value="inactive">غیرفعال</option>
+                                </select>
                             </div>
                             <div className="pt-4 flex gap-2">
                                 <Button type="submit" className="w-full">
@@ -791,11 +749,10 @@ const AdminPanel: React.FC = () => {
                                             </div>
                                             <div>
                                                 <h3 className="font-bold text-gray-900">{instructor.name}</h3>
-                                                <p className="text-xs text-gray-500">{instructor.title || 'بدون عنوان'} | {instructor.specialty || 'بدون تخصص'}</p>
-                                                <p className="text-xs text-gray-400 mt-1">
-                                                    {instructor.email && <span className="ml-3">{instructor.email}</span>}
-                                                    {instructor.phone && <span>{instructor.phone}</span>}
-                                                </p>
+                                                <p className="text-xs text-gray-500">{instructor.title || 'بدون عنوان'}</p>
+                                                {instructor.experience && (
+                                                    <p className="text-xs text-gray-400 mt-1 line-clamp-1">{instructor.experience}</p>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="flex gap-2 self-end sm:self-center">

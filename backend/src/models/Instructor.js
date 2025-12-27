@@ -11,32 +11,20 @@ const Instructor = sequelize.define('Instructor', {
     type: DataTypes.STRING(100),
     allowNull: false
   },
-  name_en: {
-    type: DataTypes.STRING(100),
-    allowNull: true
-  },
   title: {
-    type: DataTypes.STRING(100),
+    type: DataTypes.STRING(150),
     allowNull: true
   },
-  specialty: {
-    type: DataTypes.STRING(200),
+  experience: {
+    type: DataTypes.TEXT,
     allowNull: true
   },
-  bio: {
+  courses_description: {
     type: DataTypes.TEXT,
     allowNull: true
   },
   image: {
     type: DataTypes.STRING(500),
-    allowNull: true
-  },
-  email: {
-    type: DataTypes.STRING(100),
-    allowNull: true
-  },
-  phone: {
-    type: DataTypes.STRING(20),
     allowNull: true
   },
   status: {
