@@ -9,7 +9,7 @@ import { toPersianDigits } from '../utils';
 import { useAuth } from '../context/AuthContext';
 
 const McmiPage: React.FC = () => {
-  const { user, isAuthenticated, updateUser } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [step, setStep] = useState<'info' | 'test' | 'report'>('info');
   const [currentPage, setCurrentPage] = useState(0);
   const questionsPerPage = 30;
@@ -27,23 +27,17 @@ const McmiPage: React.FC = () => {
   const [answers, setAnswers] = useState<boolean[]>(new Array(175).fill(false));
   const [report, setReport] = useState<ScoreReport | null>(null);
 
-  // Restore state based on user status
+  // Pre-fill user info from profile (but allow editing)
   useEffect(() => {
     if (user) {
       setUserInfo(prev => ({
         ...prev,
-        name: user.fullNameFa,
-        age: user.age,
-        gender: user.gender,
-        education: user.education,
-        maritalStatus: user.maritalStatus
+        name: user.name || prev.name,
+        age: (user as any).age || prev.age,
+        gender: (user as any).gender || prev.gender,
+        education: (user as any).education || prev.education,
+        maritalStatus: (user as any).marital_status || prev.maritalStatus
       }));
-
-      // Check existing status
-      if (user.mcmiStatus === 'approved' && user.mcmiReport) {
-          setReport(user.mcmiReport);
-          setStep('report');
-      }
     }
   }, [user]);
 
@@ -104,9 +98,6 @@ const McmiPage: React.FC = () => {
   const finishTest = () => {
     const result = calculateScores(answers, userInfo);
     setReport(result);
-
-    // Immediately approve and show report for all users
-    updateUser({ mcmiStatus: 'approved', mcmiReport: result });
     setStep('report');
     window.scrollTo(0, 0);
   };
@@ -129,8 +120,7 @@ const McmiPage: React.FC = () => {
             <input
               type="text"
               required
-              readOnly={!!user} 
-              className={`w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand ${user ? 'bg-gray-50 text-gray-500' : ''}`}
+              className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
               value={userInfo.name}
               onChange={e => setUserInfo({...userInfo, name: e.target.value})}
             />
@@ -151,8 +141,7 @@ const McmiPage: React.FC = () => {
               required
               min="12"
               max="100"
-              readOnly={!!user}
-              className={`w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand ${user ? 'bg-gray-50 text-gray-500' : ''}`}
+              className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
               value={userInfo.age || ''}
               onChange={e => setUserInfo({...userInfo, age: parseInt(e.target.value)})}
             />
@@ -164,23 +153,21 @@ const McmiPage: React.FC = () => {
                 <input
                   type="radio"
                   name="gender"
-                  disabled={!!user}
                   checked={userInfo.gender === 'male'}
                   onChange={() => setUserInfo({...userInfo, gender: 'male'})}
                   className="text-brand focus:ring-brand"
                 />
-                <span className={user ? 'text-gray-500' : ''}>مرد</span>
+                <span>مرد</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
                   name="gender"
-                  disabled={!!user}
                   checked={userInfo.gender === 'female'}
                   onChange={() => setUserInfo({...userInfo, gender: 'female'})}
                   className="text-brand focus:ring-brand"
                 />
-                <span className={user ? 'text-gray-500' : ''}>زن</span>
+                <span>زن</span>
               </label>
             </div>
           </div>
