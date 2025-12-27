@@ -5,10 +5,11 @@ import { useCourses } from '../context/CourseContext';
 import { useComments } from '../context/CommentContext';
 import { Course } from '../types';
 import Button from '../components/Button';
-import { CheckCircle, Trash2, Edit, Plus, BookOpen, MessageSquare, Star, Users, Phone, Calendar, ClipboardList } from 'lucide-react';
+import { CheckCircle, Trash2, Edit, Plus, BookOpen, MessageSquare, Star, Users, Phone, Calendar, ClipboardList, ChevronLeft } from 'lucide-react';
 import { toPersianDigits, formatPrice } from '../utils';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import McmiReportView from '../components/McmiReportView';
 
 interface UserInfo {
   id: number;
@@ -33,6 +34,7 @@ const AdminPanel: React.FC = () => {
   const [usersLoading, setUsersLoading] = useState(false);
   const [testResults, setTestResults] = useState<any[]>([]);
   const [testsLoading, setTestsLoading] = useState(false);
+  const [selectedTest, setSelectedTest] = useState<any>(null);
   
   // Course Form State
   const [isEditing, setIsEditing] = useState(false);
@@ -416,52 +418,68 @@ const AdminPanel: React.FC = () => {
 
         {activeTab === 'tests' && (
             <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
-                    <h2 className="text-xl font-bold text-gray-900">نتایج آزمون‌های میلون</h2>
-                    <span className="text-sm bg-white px-3 py-1 rounded-full shadow-sm border border-gray-200">{toPersianDigits(testResults.length)} نتیجه</span>
-                </div>
-                {testsLoading ? (
-                    <div className="p-12 text-center text-gray-500">
-                        در حال بارگذاری...
-                    </div>
-                ) : testResults.length === 0 ? (
-                    <div className="p-12 text-center text-gray-500">
-                        هیچ نتیجه آزمونی یافت نشد.
+                {selectedTest ? (
+                    <div className="p-6">
+                        <McmiReportView 
+                            testData={selectedTest} 
+                            onBack={() => setSelectedTest(null)} 
+                        />
                     </div>
                 ) : (
-                    <div className="divide-y divide-gray-100">
-                        {testResults.map((test: any) => (
-                            <div key={test.id} className="p-4 hover:bg-gray-50 transition-colors">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold">
-                                            {test.first_name?.charAt(0) || '?'}
-                                        </div>
-                                        <div>
-                                            <h3 className="font-bold text-gray-900">
-                                                {test.first_name} {test.last_name}
-                                            </h3>
-                                            <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
-                                                <span>{test.gender === 'male' ? 'مرد' : 'زن'}</span>
-                                                {test.age && <span>{toPersianDigits(test.age)} سال</span>}
-                                                <span className="flex items-center gap-1">
-                                                    <Calendar size={12} />
-                                                    {new Date(test.createdAt).toLocaleDateString('fa-IR')}
-                                                </span>
+                    <>
+                        <div className="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                            <h2 className="text-xl font-bold text-gray-900">نتایج آزمون‌های میلون</h2>
+                            <span className="text-sm bg-white px-3 py-1 rounded-full shadow-sm border border-gray-200">{toPersianDigits(testResults.length)} نتیجه</span>
+                        </div>
+                        {testsLoading ? (
+                            <div className="p-12 text-center text-gray-500">
+                                در حال بارگذاری...
+                            </div>
+                        ) : testResults.length === 0 ? (
+                            <div className="p-12 text-center text-gray-500">
+                                هیچ نتیجه آزمونی یافت نشد.
+                            </div>
+                        ) : (
+                            <div className="divide-y divide-gray-100">
+                                {testResults.map((test: any) => (
+                                    <button
+                                        key={test.id}
+                                        onClick={() => setSelectedTest(test)}
+                                        className="w-full p-4 hover:bg-gray-50 transition-colors text-right"
+                                    >
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold">
+                                                    {test.first_name?.charAt(0) || '?'}
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-gray-900">
+                                                        {test.first_name} {test.last_name}
+                                                    </h3>
+                                                    <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                                                        <span>{test.gender === 'male' ? 'مرد' : 'زن'}</span>
+                                                        {test.age && <span>{toPersianDigits(test.age)} سال</span>}
+                                                        <span className="flex items-center gap-1">
+                                                            <Calendar size={12} />
+                                                            {new Date(test.createdAt).toLocaleDateString('fa-IR')}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                {test.user && (
+                                                    <span className="text-xs text-gray-500 block">
+                                                        کاربر: {test.user.name} ({test.user.phone})
+                                                    </span>
+                                                )}
+                                                <ChevronLeft size={20} className="text-gray-400" />
                                             </div>
                                         </div>
-                                    </div>
-                                    <div className="text-left">
-                                        {test.user && (
-                                            <span className="text-xs text-gray-500 block">
-                                                کاربر: {test.user.name} ({test.user.phone})
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
+                                    </button>
+                                ))}
                             </div>
-                        ))}
-                    </div>
+                        )}
+                    </>
                 )}
             </div>
         )}

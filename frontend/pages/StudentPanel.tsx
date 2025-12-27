@@ -2,13 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import Button from '../components/Button';
-import { User, FileText, Mail, Calendar, ChevronLeft, Play, Clock, CheckCircle } from 'lucide-react';
+import { User, FileText, Mail, Calendar, ChevronLeft, Play, CheckCircle } from 'lucide-react';
 import { toPersianDigits } from '../utils';
 import axios from 'axios';
+import McmiReportView from '../components/McmiReportView';
 
 interface TestResult {
   id: number;
   createdAt: string;
+  first_name?: string;
+  last_name?: string;
+  gender?: string;
+  age?: number;
+  education_level?: string;
+  marital_status?: string;
+  inpatient_status?: string;
   calculated_scales: any;
 }
 
@@ -185,26 +193,10 @@ const StudentPanel: React.FC = () => {
                   </div>
 
                   {selectedTest ? (
-                    <div>
-                      <button 
-                        onClick={() => setSelectedTest(null)}
-                        className="flex items-center gap-2 text-brand font-medium mb-4 hover:underline"
-                      >
-                        <ChevronLeft size={18} />
-                        بازگشت به لیست
-                      </button>
-                      <div className="bg-gray-50 rounded-xl p-6">
-                        <h3 className="font-bold text-lg mb-4">نتیجه آزمون - {formatDate(selectedTest.createdAt)}</h3>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                          {selectedTest.calculated_scales && Object.entries(selectedTest.calculated_scales).map(([key, value]) => (
-                            <div key={key} className="bg-white p-3 rounded-lg border border-gray-200">
-                              <span className="text-xs text-gray-500 block">{key}</span>
-                              <span className="text-lg font-bold text-brand">{toPersianDigits(String(value))}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+                    <McmiReportView 
+                      testData={selectedTest} 
+                      onBack={() => setSelectedTest(null)} 
+                    />
                   ) : (
                     <>
                       {loading ? (
