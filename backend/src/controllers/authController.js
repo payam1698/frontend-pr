@@ -55,8 +55,10 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { phone, password } = req.body;
+    console.log('[LOGIN] Attempt for phone:', phone);
 
     if (!phone || !password) {
+      console.log('[LOGIN] Missing phone or password');
       return res.status(400).json({
         success: false,
         message: 'Phone and password are required'
@@ -65,14 +67,17 @@ export const login = async (req, res) => {
 
     const user = await User.findOne({ where: { phone } });
     if (!user) {
+      console.log('[LOGIN] User not found for phone:', phone);
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
       });
     }
 
+    console.log('[LOGIN] User found:', user.name, '- checking password...');
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
+      console.log('[LOGIN] Password mismatch for user:', user.name);
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
@@ -80,6 +85,7 @@ export const login = async (req, res) => {
     }
 
     const token = generateToken(user.id);
+    console.log('[LOGIN] Success for user:', user.name);
 
     res.json({
       success: true,
@@ -90,7 +96,7 @@ export const login = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('[LOGIN] Error:', error);
     res.status(500).json({
       success: false,
       message: 'Login failed',
