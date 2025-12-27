@@ -632,30 +632,23 @@ const AdminPanel: React.FC = () => {
         )}
 
         {activeTab === 'instructors' && (
-            <div className="space-y-6">
-                <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-xl font-bold text-gray-900">
-                            {isEditingInstructor ? (editingInstructorId ? 'ویرایش استاد' : 'افزودن استاد جدید') : 'افزودن استاد جدید'}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Form - Right side in RTL */}
+                <div className="lg:col-span-1 lg:order-2">
+                    <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6 sticky top-24">
+                        <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                            {editingInstructorId ? <Edit className="text-brand" size={20}/> : <Plus className="text-brand" size={20}/>}
+                            {editingInstructorId ? 'ویرایش استاد' : 'افزودن استاد جدید'}
                         </h2>
-                        {isEditingInstructor && (
-                            <Button variant="outline" onClick={resetInstructorForm} className="gap-2">
-                                <X size={18} /> انصراف
-                            </Button>
-                        )}
-                    </div>
-                    
-                    <form onSubmit={handleInstructorSubmit} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <form onSubmit={handleInstructorSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">نام (فارسی) *</label>
                                 <input
                                     type="text"
-                                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
+                                    required
+                                    className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand"
                                     value={instructorForm.name}
                                     onChange={e => setInstructorForm({ ...instructorForm, name: e.target.value })}
-                                    placeholder="مثال: دکتر علی محمدی"
-                                    required
                                 />
                             </div>
                             <div>
@@ -663,30 +656,27 @@ const AdminPanel: React.FC = () => {
                                 <input
                                     type="text"
                                     dir="ltr"
-                                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand text-left"
+                                    className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand text-left"
                                     value={instructorForm.name_en}
                                     onChange={e => setInstructorForm({ ...instructorForm, name_en: e.target.value })}
-                                    placeholder="Dr. Ali Mohammadi"
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">عنوان علمی</label>
                                 <input
                                     type="text"
-                                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
+                                    className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand"
                                     value={instructorForm.title}
                                     onChange={e => setInstructorForm({ ...instructorForm, title: e.target.value })}
-                                    placeholder="دکترای روانشناسی بالینی"
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">تخصص</label>
                                 <input
                                     type="text"
-                                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
+                                    className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand"
                                     value={instructorForm.specialty}
                                     onChange={e => setInstructorForm({ ...instructorForm, specialty: e.target.value })}
-                                    placeholder="روان‌درمانی شناختی رفتاری"
                                 />
                             </div>
                             <div>
@@ -694,10 +684,9 @@ const AdminPanel: React.FC = () => {
                                 <input
                                     type="email"
                                     dir="ltr"
-                                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand text-left"
+                                    className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand text-left"
                                     value={instructorForm.email}
                                     onChange={e => setInstructorForm({ ...instructorForm, email: e.target.value })}
-                                    placeholder="email@example.com"
                                 />
                             </div>
                             <div>
@@ -705,16 +694,15 @@ const AdminPanel: React.FC = () => {
                                 <input
                                     type="text"
                                     dir="ltr"
-                                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand text-left"
+                                    className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand text-left"
                                     value={instructorForm.phone}
                                     onChange={e => setInstructorForm({ ...instructorForm, phone: e.target.value })}
-                                    placeholder="09123456789"
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">وضعیت</label>
                                 <select
-                                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
+                                    className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand"
                                     value={instructorForm.status}
                                     onChange={e => setInstructorForm({ ...instructorForm, status: e.target.value })}
                                 >
@@ -724,7 +712,7 @@ const AdminPanel: React.FC = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">تصویر</label>
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-2">
                                     <input
                                         type="file"
                                         ref={instructorImageInputRef}
@@ -735,87 +723,105 @@ const AdminPanel: React.FC = () => {
                                     <Button
                                         type="button"
                                         variant="outline"
+                                        size="sm"
                                         onClick={() => instructorImageInputRef.current?.click()}
-                                        className="gap-2"
+                                        className="gap-1"
                                     >
-                                        <Upload size={18} />
-                                        {instructorImagePreview ? 'تغییر تصویر' : 'آپلود تصویر'}
+                                        <Upload size={16} />
+                                        {instructorImagePreview ? 'تغییر' : 'آپلود'}
                                     </Button>
                                     {instructorImagePreview && (
                                         <img
                                             src={instructorImagePreview}
                                             alt="Preview"
-                                            className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                                            className="w-10 h-10 rounded-full object-cover border border-gray-200"
                                         />
                                     )}
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-1">بیوگرافی</label>
-                            <textarea
-                                rows={3}
-                                className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand resize-none"
-                                value={instructorForm.bio}
-                                onChange={e => setInstructorForm({ ...instructorForm, bio: e.target.value })}
-                                placeholder="توضیحات مختصر درباره استاد..."
-                            />
-                        </div>
-
-                        <Button type="submit" className="gap-2">
-                            {editingInstructorId ? <Edit size={18} /> : <Plus size={18} />}
-                            {editingInstructorId ? 'ذخیره تغییرات' : 'افزودن استاد'}
-                        </Button>
-                    </form>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">بیوگرافی</label>
+                                <textarea
+                                    rows={2}
+                                    className="w-full p-2 rounded-lg border border-gray-300 focus:ring-brand focus:border-brand resize-none"
+                                    value={instructorForm.bio}
+                                    onChange={e => setInstructorForm({ ...instructorForm, bio: e.target.value })}
+                                />
+                            </div>
+                            <div className="pt-4 flex gap-2">
+                                <Button type="submit" className="w-full">
+                                    {editingInstructorId ? 'ذخیره تغییرات' : 'افزودن استاد'}
+                                </Button>
+                                {editingInstructorId && (
+                                    <Button type="button" variant="outline" onClick={resetInstructorForm} className="bg-gray-100">
+                                        انصراف
+                                    </Button>
+                                )}
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
-                <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
-                        <h2 className="text-xl font-bold text-gray-900">لیست اساتید</h2>
-                        <span className="text-sm bg-white px-3 py-1 rounded-full shadow-sm border border-gray-200">{toPersianDigits(instructors.length)} استاد</span>
+                {/* List - Left side in RTL */}
+                <div className="lg:col-span-2 lg:order-1">
+                    <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div className="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                            <h2 className="text-xl font-bold text-gray-900">لیست اساتید موجود</h2>
+                            <span className="text-sm bg-white px-3 py-1 rounded-full shadow-sm border border-gray-200">{toPersianDigits(instructors.length)} استاد</span>
+                        </div>
+                        {instructorsLoading ? (
+                            <div className="p-12 text-center text-gray-500">
+                                در حال بارگذاری...
+                            </div>
+                        ) : instructors.length === 0 ? (
+                            <div className="p-12 text-center text-gray-500">
+                                هیچ استادی یافت نشد.
+                            </div>
+                        ) : (
+                            <div className="divide-y divide-gray-100">
+                                {instructors.map(instructor => (
+                                    <div key={instructor.id} className="p-4 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-16 h-16 rounded-xl bg-brand flex items-center justify-center text-white font-bold overflow-hidden border border-gray-200">
+                                                {instructor.image ? (
+                                                    <img src={instructor.image} alt={instructor.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    instructor.name?.charAt(0) || '?'
+                                                )}
+                                            </div>
+                                            <div>
+                                                <h3 className="font-bold text-gray-900">{instructor.name}</h3>
+                                                <p className="text-xs text-gray-500">{instructor.title || 'بدون عنوان'} | {instructor.specialty || 'بدون تخصص'}</p>
+                                                <p className="text-xs text-gray-400 mt-1">
+                                                    {instructor.email && <span className="ml-3">{instructor.email}</span>}
+                                                    {instructor.phone && <span>{instructor.phone}</span>}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-2 self-end sm:self-center">
+                                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${instructor.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                                                {instructor.status === 'active' ? 'فعال' : 'غیرفعال'}
+                                            </span>
+                                            <button 
+                                                onClick={() => handleEditInstructor(instructor)}
+                                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                                                title="ویرایش"
+                                            >
+                                                <Edit size={18} />
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDeleteInstructor(instructor.id)}
+                                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" 
+                                                title="حذف"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
-                    {instructorsLoading ? (
-                        <div className="p-12 text-center text-gray-500">
-                            در حال بارگذاری...
-                        </div>
-                    ) : instructors.length === 0 ? (
-                        <div className="p-12 text-center text-gray-500">
-                            هیچ استادی یافت نشد.
-                        </div>
-                    ) : (
-                        <div className="divide-y divide-gray-100">
-                            {instructors.map(instructor => (
-                                <div key={instructor.id} className="p-4 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-14 h-14 rounded-full bg-brand flex items-center justify-center text-white font-bold overflow-hidden">
-                                            {instructor.image ? (
-                                                <img src={instructor.image} alt={instructor.name} className="w-full h-full object-cover" />
-                                            ) : (
-                                                instructor.name?.charAt(0) || '?'
-                                            )}
-                                        </div>
-                                        <div>
-                                            <h3 className="font-bold text-gray-900">{instructor.name}</h3>
-                                            {instructor.title && <p className="text-sm text-gray-500">{instructor.title}</p>}
-                                            {instructor.specialty && <p className="text-xs text-gray-400">{instructor.specialty}</p>}
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${instructor.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-                                            {instructor.status === 'active' ? 'فعال' : 'غیرفعال'}
-                                        </span>
-                                        <Button size="sm" variant="outline" onClick={() => handleEditInstructor(instructor)} className="gap-1">
-                                            <Edit size={14} /> ویرایش
-                                        </Button>
-                                        <Button size="sm" variant="outline" onClick={() => handleDeleteInstructor(instructor.id)} className="text-red-600 hover:bg-red-50 border-red-200 gap-1">
-                                            <Trash2 size={14} /> حذف
-                                        </Button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
                 </div>
             </div>
         )}
