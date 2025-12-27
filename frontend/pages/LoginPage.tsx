@@ -12,11 +12,11 @@ const LoginPage: React.FC = () => {
   const [nationalCode, setNationalCode] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
-    const success = login(mobile, nationalCode);
+    const success = await login(mobile, nationalCode);
     if (success) {
       navigate('/');
     } else {
