@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { config } from './src/config/env.js';
 import { connectDB } from './src/config/db.js';
 import { syncDatabase } from './src/models/index.js';
@@ -9,6 +11,9 @@ import testRoutes from './src/routes/test.js';
 import adminRoutes from './src/routes/admin.js';
 import studentRoutes from './src/routes/student.js';
 import coursesRoutes from './src/routes/courses.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -29,11 +34,14 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
-    environment: config.server.nodeEnv
+    environment: config.server.nodeEnv,
+    database: process.env.DATABASE_URL ? 'configured' : 'not configured'
   });
 });
 
@@ -51,16 +59,21 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Endpoint not found'
+app.get('*', (req, res) => {
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      res.status(404).json({
+        success: false,
+        message: 'Page not found'
+      });
+    }
   });
 });
 
 const startServer = async () => {
   try {
-    const skipDb = process.env.SKIP_DB === 'true' || !process.env.DB_HOST;
+    const skipDb = process.env.SKIP_DB === 'true' || !process.env.DATABASE_URL;
     
     if (!skipDb) {
       const dbConnected = await connectDB();
@@ -71,8 +84,7 @@ const startServer = async () => {
         console.warn('Running without database connection. API endpoints requiring DB will not work.');
       }
     } else {
-      console.log('Skipping database connection (SKIP_DB=true or no DB_HOST configured).');
-      console.log('Configure MySQL in production with proper DB_* environment variables.');
+      console.log('Skipping database connection (SKIP_DB=true or no DATABASE_URL configured).');
     }
 
     app.listen(config.server.port, '0.0.0.0', () => {
