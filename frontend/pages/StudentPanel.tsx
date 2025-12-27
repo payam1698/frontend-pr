@@ -45,7 +45,7 @@ const StudentPanel: React.FC = () => {
 
   const loadTestHistory = async () => {
     try {
-      const response = await axios.get('/api/test/history');
+      const response = await axios.get('/api/student/test-history');
       if (response.data.success) {
         setTestResults(response.data.data || []);
       }

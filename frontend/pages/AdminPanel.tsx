@@ -32,8 +32,12 @@ const AdminPanel: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!user || user.role !== 'admin') {
-      navigate('/');
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    if (user.role !== 'admin') {
+      navigate('/panel');
       return;
     }
     loadUsers();
