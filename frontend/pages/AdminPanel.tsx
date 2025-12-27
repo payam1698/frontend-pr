@@ -1,11 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useCourses } from '../context/CourseContext';
 import { useComments } from '../context/CommentContext';
 import { Course } from '../types';
 import Button from '../components/Button';
-import { CheckCircle, Trash2, Edit, Plus, BookOpen, MessageSquare, Star, Users, Phone, Calendar, ClipboardList, ChevronLeft } from 'lucide-react';
+import { CheckCircle, Trash2, Edit, Plus, BookOpen, MessageSquare, Star, Users, Phone, Calendar, ClipboardList, ChevronLeft, GraduationCap, Upload, X } from 'lucide-react';
 import { toPersianDigits, formatPrice } from '../utils';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -23,18 +23,50 @@ interface UserInfo {
   createdAt: string;
 }
 
+interface InstructorInfo {
+  id: number;
+  name: string;
+  name_en?: string;
+  title?: string;
+  specialty?: string;
+  bio?: string;
+  image?: string;
+  email?: string;
+  phone?: string;
+  status: string;
+  createdAt: string;
+}
+
 const AdminPanel: React.FC = () => {
   const { user } = useAuth();
   const { courses, addCourse, updateCourse, deleteCourse } = useCourses();
   const { getPendingComments, approveComment, deleteComment } = useComments();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'comments' | 'courses' | 'users' | 'tests'>('comments');
+  const [activeTab, setActiveTab] = useState<'comments' | 'courses' | 'users' | 'tests' | 'instructors'>('comments');
   const [users, setUsers] = useState<UserInfo[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [testResults, setTestResults] = useState<any[]>([]);
   const [testsLoading, setTestsLoading] = useState(false);
   const [selectedTest, setSelectedTest] = useState<any>(null);
+  
+  const [instructors, setInstructors] = useState<InstructorInfo[]>([]);
+  const [instructorsLoading, setInstructorsLoading] = useState(false);
+  const [isEditingInstructor, setIsEditingInstructor] = useState(false);
+  const [editingInstructorId, setEditingInstructorId] = useState<number | null>(null);
+  const [instructorForm, setInstructorForm] = useState({
+    name: '',
+    name_en: '',
+    title: '',
+    specialty: '',
+    bio: '',
+    email: '',
+    phone: '',
+    status: 'active'
+  });
+  const [instructorImage, setInstructorImage] = useState<File | null>(null);
+  const [instructorImagePreview, setInstructorImagePreview] = useState<string | null>(null);
+  const instructorImageInputRef = useRef<HTMLInputElement>(null);
   
   // Course Form State
   const [isEditing, setIsEditing] = useState(false);
@@ -81,6 +113,9 @@ const AdminPanel: React.FC = () => {
     if (activeTab === 'tests' && testResults.length === 0) {
       loadTestResults();
     }
+    if (activeTab === 'instructors' && instructors.length === 0) {
+      loadInstructors();
+    }
   }, [activeTab]);
 
   const loadTestResults = async () => {
@@ -94,6 +129,111 @@ const AdminPanel: React.FC = () => {
       console.error('Error loading test results:', error);
     } finally {
       setTestsLoading(false);
+    }
+  };
+
+  const loadInstructors = async () => {
+    setInstructorsLoading(true);
+    try {
+      const response = await axios.get('/api/admin/instructors');
+      if (response.data.success) {
+        setInstructors(response.data.data || []);
+      }
+    } catch (error) {
+      console.error('Error loading instructors:', error);
+    } finally {
+      setInstructorsLoading(false);
+    }
+  };
+
+  const resetInstructorForm = () => {
+    setInstructorForm({
+      name: '',
+      name_en: '',
+      title: '',
+      specialty: '',
+      bio: '',
+      email: '',
+      phone: '',
+      status: 'active'
+    });
+    setInstructorImage(null);
+    setInstructorImagePreview(null);
+    setIsEditingInstructor(false);
+    setEditingInstructorId(null);
+  };
+
+  const handleInstructorImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setInstructorImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setInstructorImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleInstructorSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!instructorForm.name) {
+      alert('نام استاد الزامی است');
+      return;
+    }
+
+    const formData = new FormData();
+    Object.entries(instructorForm).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+    if (instructorImage) {
+      formData.append('image', instructorImage);
+    }
+
+    try {
+      if (editingInstructorId) {
+        await axios.put(`/api/admin/instructors/${editingInstructorId}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      } else {
+        await axios.post('/api/admin/instructors', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      }
+      resetInstructorForm();
+      loadInstructors();
+    } catch (error) {
+      console.error('Error saving instructor:', error);
+      alert('خطا در ذخیره اطلاعات استاد');
+    }
+  };
+
+  const handleEditInstructor = (instructor: InstructorInfo) => {
+    setInstructorForm({
+      name: instructor.name,
+      name_en: instructor.name_en || '',
+      title: instructor.title || '',
+      specialty: instructor.specialty || '',
+      bio: instructor.bio || '',
+      email: instructor.email || '',
+      phone: instructor.phone || '',
+      status: instructor.status
+    });
+    if (instructor.image) {
+      setInstructorImagePreview(instructor.image);
+    }
+    setEditingInstructorId(instructor.id);
+    setIsEditingInstructor(true);
+  };
+
+  const handleDeleteInstructor = async (id: number) => {
+    if (!confirm('آیا از حذف این استاد اطمینان دارید؟')) return;
+    try {
+      await axios.delete(`/api/admin/instructors/${id}`);
+      loadInstructors();
+    } catch (error) {
+      console.error('Error deleting instructor:', error);
+      alert('خطا در حذف استاد');
     }
   };
 
@@ -197,6 +337,13 @@ const AdminPanel: React.FC = () => {
             >
                 <ClipboardList size={20} />
                 نتایج آزمون‌ها ({toPersianDigits(testResults.length)})
+            </button>
+            <button 
+                onClick={() => setActiveTab('instructors')}
+                className={`flex-1 py-4 text-center font-bold flex items-center justify-center gap-2 transition-colors ${activeTab === 'instructors' ? 'bg-brand text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+            >
+                <GraduationCap size={20} />
+                مدیریت اساتید ({toPersianDigits(instructors.length)})
             </button>
         </div>
 
@@ -481,6 +628,195 @@ const AdminPanel: React.FC = () => {
                         )}
                     </>
                 )}
+            </div>
+        )}
+
+        {activeTab === 'instructors' && (
+            <div className="space-y-6">
+                <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden p-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl font-bold text-gray-900">
+                            {isEditingInstructor ? (editingInstructorId ? 'ویرایش استاد' : 'افزودن استاد جدید') : 'افزودن استاد جدید'}
+                        </h2>
+                        {isEditingInstructor && (
+                            <Button variant="outline" onClick={resetInstructorForm} className="gap-2">
+                                <X size={18} /> انصراف
+                            </Button>
+                        )}
+                    </div>
+                    
+                    <form onSubmit={handleInstructorSubmit} className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">نام (فارسی) *</label>
+                                <input
+                                    type="text"
+                                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
+                                    value={instructorForm.name}
+                                    onChange={e => setInstructorForm({ ...instructorForm, name: e.target.value })}
+                                    placeholder="مثال: دکتر علی محمدی"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">نام (انگلیسی)</label>
+                                <input
+                                    type="text"
+                                    dir="ltr"
+                                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand text-left"
+                                    value={instructorForm.name_en}
+                                    onChange={e => setInstructorForm({ ...instructorForm, name_en: e.target.value })}
+                                    placeholder="Dr. Ali Mohammadi"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">عنوان علمی</label>
+                                <input
+                                    type="text"
+                                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
+                                    value={instructorForm.title}
+                                    onChange={e => setInstructorForm({ ...instructorForm, title: e.target.value })}
+                                    placeholder="دکترای روانشناسی بالینی"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">تخصص</label>
+                                <input
+                                    type="text"
+                                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
+                                    value={instructorForm.specialty}
+                                    onChange={e => setInstructorForm({ ...instructorForm, specialty: e.target.value })}
+                                    placeholder="روان‌درمانی شناختی رفتاری"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">ایمیل</label>
+                                <input
+                                    type="email"
+                                    dir="ltr"
+                                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand text-left"
+                                    value={instructorForm.email}
+                                    onChange={e => setInstructorForm({ ...instructorForm, email: e.target.value })}
+                                    placeholder="email@example.com"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">تلفن</label>
+                                <input
+                                    type="text"
+                                    dir="ltr"
+                                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand text-left"
+                                    value={instructorForm.phone}
+                                    onChange={e => setInstructorForm({ ...instructorForm, phone: e.target.value })}
+                                    placeholder="09123456789"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">وضعیت</label>
+                                <select
+                                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
+                                    value={instructorForm.status}
+                                    onChange={e => setInstructorForm({ ...instructorForm, status: e.target.value })}
+                                >
+                                    <option value="active">فعال</option>
+                                    <option value="inactive">غیرفعال</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">تصویر</label>
+                                <div className="flex items-center gap-4">
+                                    <input
+                                        type="file"
+                                        ref={instructorImageInputRef}
+                                        accept="image/*"
+                                        onChange={handleInstructorImageChange}
+                                        className="hidden"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => instructorImageInputRef.current?.click()}
+                                        className="gap-2"
+                                    >
+                                        <Upload size={18} />
+                                        {instructorImagePreview ? 'تغییر تصویر' : 'آپلود تصویر'}
+                                    </Button>
+                                    {instructorImagePreview && (
+                                        <img
+                                            src={instructorImagePreview}
+                                            alt="Preview"
+                                            className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                                        />
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">بیوگرافی</label>
+                            <textarea
+                                rows={3}
+                                className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand resize-none"
+                                value={instructorForm.bio}
+                                onChange={e => setInstructorForm({ ...instructorForm, bio: e.target.value })}
+                                placeholder="توضیحات مختصر درباره استاد..."
+                            />
+                        </div>
+
+                        <Button type="submit" className="gap-2">
+                            {editingInstructorId ? <Edit size={18} /> : <Plus size={18} />}
+                            {editingInstructorId ? 'ذخیره تغییرات' : 'افزودن استاد'}
+                        </Button>
+                    </form>
+                </div>
+
+                <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                        <h2 className="text-xl font-bold text-gray-900">لیست اساتید</h2>
+                        <span className="text-sm bg-white px-3 py-1 rounded-full shadow-sm border border-gray-200">{toPersianDigits(instructors.length)} استاد</span>
+                    </div>
+                    {instructorsLoading ? (
+                        <div className="p-12 text-center text-gray-500">
+                            در حال بارگذاری...
+                        </div>
+                    ) : instructors.length === 0 ? (
+                        <div className="p-12 text-center text-gray-500">
+                            هیچ استادی یافت نشد.
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-gray-100">
+                            {instructors.map(instructor => (
+                                <div key={instructor.id} className="p-4 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-14 h-14 rounded-full bg-brand flex items-center justify-center text-white font-bold overflow-hidden">
+                                            {instructor.image ? (
+                                                <img src={instructor.image} alt={instructor.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                instructor.name?.charAt(0) || '?'
+                                            )}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-gray-900">{instructor.name}</h3>
+                                            {instructor.title && <p className="text-sm text-gray-500">{instructor.title}</p>}
+                                            {instructor.specialty && <p className="text-xs text-gray-400">{instructor.specialty}</p>}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${instructor.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                                            {instructor.status === 'active' ? 'فعال' : 'غیرفعال'}
+                                        </span>
+                                        <Button size="sm" variant="outline" onClick={() => handleEditInstructor(instructor)} className="gap-1">
+                                            <Edit size={14} /> ویرایش
+                                        </Button>
+                                        <Button size="sm" variant="outline" onClick={() => handleDeleteInstructor(instructor.id)} className="text-red-600 hover:bg-red-50 border-red-200 gap-1">
+                                            <Trash2 size={14} /> حذف
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
         )}
 

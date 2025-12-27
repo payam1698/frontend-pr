@@ -8,7 +8,12 @@ import {
   deleteCourse, 
   uploadCertificate,
   upload,
-  getAllTestResults
+  getAllTestResults,
+  getAllInstructors,
+  createInstructor,
+  updateInstructor,
+  deleteInstructor,
+  uploadInstructorImage
 } from '../controllers/adminController.js';
 import { authenticateToken } from '../middleware/jwtAuth.js';
 import { requireAdmin } from '../middleware/roleGuard.js';
@@ -29,5 +34,10 @@ router.delete('/courses/:id', deleteCourse);
 router.post('/upload-certificate', upload.single('certificate'), uploadCertificate);
 
 router.get('/test-results', getAllTestResults);
+
+router.get('/instructors', getAllInstructors);
+router.post('/instructors', uploadInstructorImage.single('image'), createInstructor);
+router.put('/instructors/:id', uploadInstructorImage.single('image'), updateInstructor);
+router.delete('/instructors/:id', deleteInstructor);
 
 export default router;

@@ -4,6 +4,7 @@ import Course from './Course.js';
 import MillonResult from './MillonResult.js';
 import Enrollment from './Enrollment.js';
 import Certificate from './Certificate.js';
+import Instructor from './Instructor.js';
 
 User.hasMany(MillonResult, { foreignKey: 'user_id', as: 'millonResults' });
 MillonResult.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
@@ -31,4 +32,4 @@ export const syncDatabase = async (force = false) => {
   }
 };
 
-export { User, Course, MillonResult, Enrollment, Certificate };
+export { User, Course, MillonResult, Enrollment, Certificate, Instructor };
