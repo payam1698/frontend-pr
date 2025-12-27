@@ -5,7 +5,8 @@ import {
   getTestHistory, 
   getMyCertificates,
   getMyEnrollments,
-  enrollInCourse
+  enrollInCourse,
+  sendMessage
 } from '../controllers/studentController.js';
 import { authenticateToken } from '../middleware/jwtAuth.js';
 
@@ -19,5 +20,6 @@ router.get('/test-history', getTestHistory);
 router.get('/my-certificates', getMyCertificates);
 router.get('/my-enrollments', getMyEnrollments);
 router.post('/enroll', enrollInCourse);
+router.post('/message', sendMessage);
 
 export default router;

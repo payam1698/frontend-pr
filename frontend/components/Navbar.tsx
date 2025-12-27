@@ -49,7 +49,7 @@ const Navbar: React.FC = () => {
                 </Link>
               ))}
               
-              {/* Admin Link for Desktop */}
+              {/* Panel Links for Desktop */}
               {user?.role === 'admin' && (
                  <Link
                   to="/admin"
@@ -60,6 +60,18 @@ const Navbar: React.FC = () => {
                   }`}
                 >
                   <Settings size={16} /> پنل مدیریت
+                </Link>
+              )}
+              {user?.role === 'student' && (
+                 <Link
+                  to="/panel"
+                  className={`px-3 py-2 rounded-md text-sm font-bold transition-colors flex items-center gap-1 ${
+                    location.pathname === '/panel' 
+                      ? 'text-brand bg-brand-light' 
+                      : 'text-brand hover:bg-brand-light'
+                  }`}
+                >
+                  <User size={16} /> پنل کاربری
                 </Link>
               )}
             </div>
@@ -136,6 +148,15 @@ const Navbar: React.FC = () => {
                   onClick={() => setIsOpen(false)}
                 >
                   <span className="flex items-center gap-2"><Settings size={18} /> پنل مدیریت</span>
+                </Link>
+              )}
+              {user?.role === 'student' && (
+                 <Link
+                  to="/panel"
+                  className="block px-3 py-2 rounded-md text-base font-bold text-brand bg-brand-light"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <span className="flex items-center gap-2"><User size={18} /> پنل کاربری</span>
                 </Link>
               )}
             <div className="border-t border-gray-100 pt-4 mt-2 space-y-4">

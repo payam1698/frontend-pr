@@ -16,6 +16,7 @@ import GuidePage from './pages/GuidePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AdminPanel from './pages/AdminPanel';
+import StudentPanel from './pages/StudentPanel';
 import BlogPage from './pages/BlogPage';
 import PostDetailsPage from './pages/PostDetailsPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -60,6 +61,7 @@ function App() {
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
                   <Route path="/admin" element={<AdminPanel />} />
+                  <Route path="/panel" element={<StudentPanel />} />
                   <Route path="/blog" element={<BlogPage />} />
                   <Route path="/blog/:id" element={<PostDetailsPage />} />
                   <Route path="/recovery" element={<PlaceholderPage title="بازیابی رمز عبور" />} />

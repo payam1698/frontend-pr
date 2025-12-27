@@ -17,14 +17,15 @@ export const getProfile = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { name, fullNameEn, age, education, maritalStatus } = req.body;
+    const { name, full_name_en, age, gender, education, marital_status } = req.body;
     
     await req.user.update({
       name: name || req.user.name,
-      full_name_en: fullNameEn || req.user.full_name_en,
+      full_name_en: full_name_en || req.user.full_name_en,
       age: age || req.user.age,
+      gender: gender || req.user.gender,
       education: education || req.user.education,
-      marital_status: maritalStatus || req.user.marital_status
+      marital_status: marital_status || req.user.marital_status
     });
 
     res.json({
@@ -98,6 +99,32 @@ export const getMyEnrollments = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch enrollments',
+      error: error.message
+    });
+  }
+};
+
+export const sendMessage = async (req, res) => {
+  try {
+    const { message } = req.body;
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Message content is required'
+      });
+    }
+
+    console.log(`[MESSAGE] New message from user ${req.user.name} (${req.user.phone}): ${message}`);
+
+    res.json({
+      success: true,
+      message: 'Message sent successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send message',
       error: error.message
     });
   }
