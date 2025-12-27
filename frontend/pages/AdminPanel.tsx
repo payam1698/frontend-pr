@@ -1,22 +1,21 @@
 
 import React, { useState, useEffect } from 'react';
-import { useAuth, UserData } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { useCourses } from '../context/CourseContext';
 import { useComments } from '../context/CommentContext';
 import { Course } from '../types';
 import Button from '../components/Button';
-import { CheckCircle, Trash2, Edit, Plus, Users, BookOpen, MessageSquare, Star } from 'lucide-react';
+import { CheckCircle, Trash2, Edit, Plus, BookOpen, MessageSquare, Star } from 'lucide-react';
 import { toPersianDigits, formatPrice } from '../utils';
 import { useNavigate } from 'react-router-dom';
 
 const AdminPanel: React.FC = () => {
-  const { user, getAllUsers } = useAuth();
+  const { user } = useAuth();
   const { courses, addCourse, updateCourse, deleteCourse } = useCourses();
   const { getPendingComments, approveComment, deleteComment } = useComments();
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState<'comments' | 'courses'>('comments');
-  const [users, setUsers] = useState<UserData[]>([]);
   
   // Course Form State
   const [isEditing, setIsEditing] = useState(false);
@@ -40,12 +39,7 @@ const AdminPanel: React.FC = () => {
       navigate('/panel');
       return;
     }
-    loadUsers();
   }, [user, navigate]);
-
-  const loadUsers = () => {
-    setUsers(getAllUsers());
-  };
 
   // --- Comment Handlers ---
   const handleApproveComment = (id: string) => {
