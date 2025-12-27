@@ -10,8 +10,8 @@ const API_URL = "/api";
 
 export interface UserData {
   id?: number;
-  fullNameFa: string;
-  fullNameEn: string;
+  name: string;
+  full_name_en?: string;
   phone: string; 
   role: 'admin' | 'student';
 }

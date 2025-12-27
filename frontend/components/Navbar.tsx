@@ -78,7 +78,7 @@ const Navbar: React.FC = () => {
               <div className="flex items-center gap-3">
                  <div className="flex items-center gap-2 text-sm font-bold text-gray-700 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
                     <User size={18} className="text-brand" />
-                    <span>{user.fullNameFa}</span>
+                    <span>{user.name}</span>
                  </div>
                  <button 
                   onClick={logout}
@@ -150,7 +150,7 @@ const Navbar: React.FC = () => {
                {user ? (
                  <div className="space-y-3">
                     <div className="flex items-center justify-center gap-2 font-bold text-gray-800 bg-gray-50 p-2 rounded-lg">
-                       <User size={18} className="text-brand" /> {user.fullNameFa}
+                       <User size={18} className="text-brand" /> {user.name}
                     </div>
                     <Button variant="outline" className="w-full text-red-500 border-red-200 hover:bg-red-50 gap-2" onClick={() => { logout(); setIsOpen(false); }}>
                        <LogOut size={18} /> خروج از حساب
