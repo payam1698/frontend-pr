@@ -308,7 +308,7 @@ export const getAllInstructors = async (req, res) => {
 
 export const createInstructor = async (req, res) => {
   try {
-    const { name, name_en, title, specialty, bio, email, phone, status } = req.body;
+    const { name, title, experience, courses_description, status } = req.body;
 
     if (!name) {
       return res.status(400).json({
@@ -324,12 +324,9 @@ export const createInstructor = async (req, res) => {
 
     const instructor = await Instructor.create({
       name,
-      name_en,
       title,
-      specialty,
-      bio,
-      email,
-      phone,
+      experience,
+      courses_description,
       status: status || 'active',
       image: imagePath
     });
@@ -351,7 +348,7 @@ export const createInstructor = async (req, res) => {
 export const updateInstructor = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, name_en, title, specialty, bio, email, phone, status } = req.body;
+    const { name, title, experience, courses_description, status } = req.body;
 
     const instructor = await Instructor.findByPk(id);
     if (!instructor) {
@@ -361,7 +358,7 @@ export const updateInstructor = async (req, res) => {
       });
     }
 
-    const updateData = { name, name_en, title, specialty, bio, email, phone, status };
+    const updateData = { name, title, experience, courses_description, status };
     
     if (req.file) {
       updateData.image = '/api/uploads/instructors/' + req.file.filename;

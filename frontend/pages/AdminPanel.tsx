@@ -101,14 +101,15 @@ const AdminPanel: React.FC = () => {
   };
 
   useEffect(() => {
+    loadInstructors();
+  }, []);
+
+  useEffect(() => {
     if (activeTab === 'users' && users.length === 0) {
       loadUsers();
     }
     if (activeTab === 'tests' && testResults.length === 0) {
       loadTestResults();
-    }
-    if (activeTab === 'instructors' && instructors.length === 0) {
-      loadInstructors();
     }
   }, [activeTab]);
 
