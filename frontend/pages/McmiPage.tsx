@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { User, ArrowLeft, ArrowRight, Printer, AlertCircle, Lock, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Button from '../components/Button';
@@ -9,7 +9,7 @@ import { toPersianDigits } from '../utils';
 import { useAuth } from '../context/AuthContext';
 
 const McmiPage: React.FC = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [step, setStep] = useState<'info' | 'test' | 'report'>('info');
   const [currentPage, setCurrentPage] = useState(0);
   const questionsPerPage = 30;
@@ -27,19 +27,6 @@ const McmiPage: React.FC = () => {
   const [answers, setAnswers] = useState<boolean[]>(new Array(175).fill(false));
   const [report, setReport] = useState<ScoreReport | null>(null);
 
-  // Pre-fill user info from profile (but allow editing)
-  useEffect(() => {
-    if (user) {
-      setUserInfo(prev => ({
-        ...prev,
-        name: user.name || prev.name,
-        age: (user as any).age || prev.age,
-        gender: (user as any).gender || prev.gender,
-        education: (user as any).education || prev.education,
-        maritalStatus: (user as any).marital_status || prev.maritalStatus
-      }));
-    }
-  }, [user]);
 
   const totalPages = Math.ceil(mcmiQuestions.length / questionsPerPage);
 
