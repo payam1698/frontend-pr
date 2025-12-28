@@ -22,6 +22,9 @@ export default defineConfig(({ mode }) => {
         emptyOutDir: true,
       },
       plugins: [react()],
+      optimizeDeps: {
+        include: ['react-multi-date-picker', 'react-date-object']
+      },
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)

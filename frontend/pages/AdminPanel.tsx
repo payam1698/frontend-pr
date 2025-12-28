@@ -10,9 +10,6 @@ import { toPersianDigits, formatPrice } from '../utils';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import McmiReportView from '../components/McmiReportView';
-import DatePicker from 'react-multi-date-picker';
-import persian from 'react-date-object/calendars/persian';
-import persian_fa from 'react-date-object/locales/persian_fa';
 
 interface UserInfo {
   id: number;
@@ -248,8 +245,6 @@ const AdminPanel: React.FC = () => {
     e.preventDefault();
     if (!editingUserId) return;
 
-    const birthDateStr = userForm.birth_date?.format?.('YYYY/MM/DD') || userForm.birth_date || null;
-
     try {
       await axios.put(`/api/admin/users/${editingUserId}`, {
         name: userForm.name,
@@ -260,7 +255,7 @@ const AdminPanel: React.FC = () => {
         marital_status: userForm.marital_status || null,
         father_name: userForm.father_name || null,
         birth_place: userForm.birth_place || null,
-        birth_date: birthDateStr
+        birth_date: userForm.birth_date || null
       });
       setIsEditingUser(false);
       setEditingUserId(null);
@@ -616,16 +611,13 @@ const AdminPanel: React.FC = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">تاریخ تولد</label>
-                                <DatePicker
-                                    value={userForm.birth_date}
-                                    onChange={(date) => setUserForm({...userForm, birth_date: date})}
-                                    calendar={persian}
-                                    locale={persian_fa}
-                                    calendarPosition="bottom-right"
-                                    inputClass="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand"
-                                    containerClassName="w-full"
-                                    placeholder="انتخاب تاریخ"
+                                <label className="block text-sm font-medium text-gray-700 mb-1">تاریخ تولد (شمسی)</label>
+                                <input
+                                    type="text"
+                                    placeholder="مثال: ۱۳۷۵/۰۶/۱۵"
+                                    value={userForm.birth_date || ''}
+                                    onChange={(e) => setUserForm({...userForm, birth_date: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand"
                                 />
                             </div>
                             <div>
