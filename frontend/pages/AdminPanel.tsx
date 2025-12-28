@@ -112,16 +112,9 @@ const AdminPanel: React.FC = () => {
 
   useEffect(() => {
     loadInstructors();
+    loadUsers();
+    loadTestResults();
   }, []);
-
-  useEffect(() => {
-    if (activeTab === 'users' && users.length === 0) {
-      loadUsers();
-    }
-    if (activeTab === 'tests' && testResults.length === 0) {
-      loadTestResults();
-    }
-  }, [activeTab]);
 
   const loadTestResults = async () => {
     setTestsLoading(true);
