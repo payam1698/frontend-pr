@@ -294,11 +294,10 @@ export const calculateRawScores = (answers, gender) => {
 };
 
 export const scaleNames = {
-  '25': { code: 'V', name: 'Validity' },
   '1': { code: 'Y', name: 'Desirability' },
   '2': { code: 'Z', name: 'Debasement' },
   '3': { code: '1', name: 'Schizoid' },
-  '4': { code: '2A', name: 'Avoidant' },
+  '4': { code: '2', name: 'Avoidant' },
   '5': { code: '3', name: 'Dependent' },
   '6': { code: '4', name: 'Histrionic' },
   '7': { code: '5', name: 'Narcissistic' },
@@ -306,19 +305,20 @@ export const scaleNames = {
   '9': { code: '6B', name: 'Aggressive/Sadistic' },
   '10': { code: '7', name: 'Compulsive' },
   '11': { code: '8A', name: 'Passive-Aggressive' },
-  '12': { code: '8B', name: 'Self-Defeating' },
+  '12': { code: '8B', name: 'Self-defeating' },
   '13': { code: 'S', name: 'Schizotypal' },
   '14': { code: 'C', name: 'Borderline' },
   '15': { code: 'P', name: 'Paranoid' },
   '16': { code: 'A', name: 'Anxiety' },
   '17': { code: 'H', name: 'Somatoform' },
-  '18': { code: 'N', name: 'Bipolar: Manic' },
+  '18': { code: 'N', name: 'Bipolar:Manic' },
   '19': { code: 'D', name: 'Dysthymia' },
-  '20': { code: 'B', name: 'Alcohol Dependence' },
-  '21': { code: 'T', name: 'Drug Dependence' },
+  '20': { code: 'B', name: 'Alcohol dependence' },
+  '21': { code: 'T', name: 'Drug dependence' },
   '22': { code: 'SS', name: 'Thought Disorder' },
   '23': { code: 'CC', name: 'Major Depression' },
-  '24': { code: 'PP', name: 'Delusional Disorder' }
+  '24': { code: 'PP', name: 'Delusional disorder' },
+  '25': { code: 'X', name: 'Disclosure' }
 };
 
 export const calculateScores = (answers, userInfo) => {

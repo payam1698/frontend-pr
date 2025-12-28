@@ -103,7 +103,26 @@ Tables are auto-created by Sequelize on startup:
 - **enrollments**: id, user_id (FK), course_id (FK), status
 - **certificates**: id, user_id (FK), course_id (FK), pdf_path, issue_date
 
+## MCMI-II Scoring System
+The MCMI-II test scoring follows a complete workflow:
+1. **Data Files**: 
+   - `frontend/data/mcmiData.ts` - Questions (175) and BR lookup tables for male/female
+   - `frontend/utils/mcmiScoring.ts` - Full scoring logic with X, DA, DD, DC, Inp adjustments
+   - `backend/src/services/mcmiScoring.js` - Backend scoring service
+2. **Scale Order** (25 scales, English names):
+   - Desirability (Y), Debasement (Z), Schizoid (1), Avoidant (2), Dependent (3)
+   - Histrionic (4), Narcissistic (5), Antisocial (6A), Aggressive/Sadistic (6B)
+   - Compulsive (7), Passive-Aggressive (8A), Self-defeating (8B)
+   - Schizotypal (S), Borderline (C), Paranoid (P), Anxiety (A), Somatoform (H)
+   - Bipolar:Manic (N), Dysthymia (D), Alcohol dependence (B), Drug dependence (T)
+   - Thought Disorder (SS), Major Depression (CC), Delusional disorder (PP), Disclosure (X)
+3. **Report View**: `frontend/components/McmiReportView.tsx` - English-only report display
+
 ## Recent Changes
+- **2025-12-28**: Standardized MCMI-II reporting system
+  - Updated scale order and English names across frontend and backend
+  - Consistent scaleNames in mcmiScoring.ts and mcmiScoring.js
+  - McmiReportView displays all 25 scales in specified order
 - **2025-12-27**: Converted to PostgreSQL with Replit database
   - Connected to Replit's PostgreSQL (Neon) using DATABASE_URL
   - Backend now runs on port 3000
