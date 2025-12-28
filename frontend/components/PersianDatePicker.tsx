@@ -39,12 +39,12 @@ const PersianDatePicker: React.FC<PersianDatePickerProps> = ({ value, onChange, 
 
   const getDaysInMonth = () => {
     const m = parseInt(month);
-    if (m <= 6) return 31;
+    if (!m || m <= 6) return 31;
     if (m <= 11) return 30;
     return 29;
   };
 
-  const days = month ? Array.from({ length: getDaysInMonth() }, (_, i) => i + 1) : [];
+  const days = Array.from({ length: getDaysInMonth() }, (_, i) => i + 1);
 
   return (
     <div className={`flex gap-2 ${className}`} dir="rtl">
