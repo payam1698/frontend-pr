@@ -5,7 +5,7 @@ export const register = async (req, res) => {
   try {
     const { name, phone, password, fullNameEn, gender, education, maritalStatus, fatherName, birthPlace, birthDate } = req.body;
 
-    if (!name || !phone || !password || !gender || !education || !fatherName || !birthPlace || !birthDate) {
+    if (!name || !phone || !password || !gender || !education || !maritalStatus || !fatherName || !birthPlace || !birthDate) {
       return res.status(400).json({
         success: false,
         message: 'تمام فیلدها الزامی هستند'

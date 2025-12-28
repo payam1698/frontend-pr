@@ -10,6 +10,9 @@ import { toPersianDigits, formatPrice } from '../utils';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import McmiReportView from '../components/McmiReportView';
+import DatePicker from 'react-multi-date-picker';
+import persian from 'react-date-object/calendars/persian';
+import persian_fa from 'react-date-object/locales/persian_fa';
 
 interface UserInfo {
   id: number;
@@ -17,9 +20,12 @@ interface UserInfo {
   phone: string;
   role: string;
   full_name_en?: string;
-  age?: number;
   gender?: string;
   education?: string;
+  marital_status?: string;
+  father_name?: string;
+  birth_place?: string;
+  birth_date?: string;
   createdAt: string;
 }
 
@@ -59,7 +65,11 @@ const AdminPanel: React.FC = () => {
     phone: '',
     role: 'student',
     gender: '',
-    age: ''
+    education: '',
+    marital_status: '',
+    father_name: '',
+    birth_place: '',
+    birth_date: null as any
   });
   const [instructorForm, setInstructorForm] = useState({
     name: '',
@@ -224,7 +234,11 @@ const AdminPanel: React.FC = () => {
       phone: u.phone || '',
       role: u.role || 'student',
       gender: u.gender || '',
-      age: u.age?.toString() || ''
+      education: u.education || '',
+      marital_status: u.marital_status || '',
+      father_name: u.father_name || '',
+      birth_place: u.birth_place || '',
+      birth_date: u.birth_date || null
     });
     setEditingUserId(u.id);
     setIsEditingUser(true);
@@ -234,13 +248,19 @@ const AdminPanel: React.FC = () => {
     e.preventDefault();
     if (!editingUserId) return;
 
+    const birthDateStr = userForm.birth_date?.format?.('YYYY/MM/DD') || userForm.birth_date || null;
+
     try {
       await axios.put(`/api/admin/users/${editingUserId}`, {
         name: userForm.name,
         phone: userForm.phone,
         role: userForm.role,
         gender: userForm.gender || null,
-        age: userForm.age ? parseInt(userForm.age) : null
+        education: userForm.education || null,
+        marital_status: userForm.marital_status || null,
+        father_name: userForm.father_name || null,
+        birth_place: userForm.birth_place || null,
+        birth_date: birthDateStr
       });
       setIsEditingUser(false);
       setEditingUserId(null);
@@ -578,6 +598,37 @@ const AdminPanel: React.FC = () => {
                                 </select>
                             </div>
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">نام پدر</label>
+                                <input
+                                    type="text"
+                                    value={userForm.father_name}
+                                    onChange={(e) => setUserForm({...userForm, father_name: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">محل تولد</label>
+                                <input
+                                    type="text"
+                                    value={userForm.birth_place}
+                                    onChange={(e) => setUserForm({...userForm, birth_place: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">تاریخ تولد</label>
+                                <DatePicker
+                                    value={userForm.birth_date}
+                                    onChange={(date) => setUserForm({...userForm, birth_date: date})}
+                                    calendar={persian}
+                                    locale={persian_fa}
+                                    calendarPosition="bottom-right"
+                                    inputClass="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand"
+                                    containerClassName="w-full"
+                                    placeholder="انتخاب تاریخ"
+                                />
+                            </div>
+                            <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">جنسیت</label>
                                 <select
                                     value={userForm.gender}
@@ -590,17 +641,34 @@ const AdminPanel: React.FC = () => {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">سن</label>
-                                <input
-                                    type="number"
-                                    value={userForm.age}
-                                    onChange={(e) => setUserForm({...userForm, age: e.target.value})}
+                                <label className="block text-sm font-medium text-gray-700 mb-1">تحصیلات</label>
+                                <select
+                                    value={userForm.education}
+                                    onChange={(e) => setUserForm({...userForm, education: e.target.value})}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand"
-                                    min="1"
-                                    max="120"
-                                />
+                                >
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="زیر دیپلم">زیر دیپلم</option>
+                                    <option value="دیپلم">دیپلم</option>
+                                    <option value="کاردانی">کاردانی</option>
+                                    <option value="کارشناسی">کارشناسی</option>
+                                    <option value="کارشناسی ارشد">کارشناسی ارشد</option>
+                                    <option value="دکتری">دکتری</option>
+                                </select>
                             </div>
-                            <div className="flex items-end">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">وضعیت تأهل</label>
+                                <select
+                                    value={userForm.marital_status}
+                                    onChange={(e) => setUserForm({...userForm, marital_status: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand"
+                                >
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="مجرد">مجرد</option>
+                                    <option value="متاهل">متاهل</option>
+                                </select>
+                            </div>
+                            <div className="flex items-end lg:col-span-3 md:col-span-2">
                                 <Button type="submit" className="w-full">ذخیره تغییرات</Button>
                             </div>
                         </form>
