@@ -67,7 +67,17 @@ const scaleNames: Record<string, { code: string; name: string }> = {
 const McmiReportView: React.FC<McmiReportViewProps> = ({ testData, onBack }) => {
   const report = testData.calculated_scales;
   
+  // DEBUG: Log data received for rendering
+  console.log('=== McmiReportView DEBUG ===');
+  console.log('testData:', JSON.stringify(testData, null, 2));
+  console.log('calculated_scales:', report);
+  if (report?.adjustedScores) {
+    console.log('adjustedScores keys:', Object.keys(report.adjustedScores));
+    console.log('xScore:', report.xScore);
+  }
+  
   if (!report || !report.adjustedScores) {
+    console.log('ERROR: No report or adjustedScores available!');
     return (
       <div className="text-center py-12 text-gray-500">
         اطلاعات گزارش در دسترس نیست.
