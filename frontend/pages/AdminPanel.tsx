@@ -10,6 +10,7 @@ import { toPersianDigits, formatPrice } from '../utils';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import McmiReportView from '../components/McmiReportView';
+import PersianDatePicker from '../components/PersianDatePicker';
 
 interface UserInfo {
   id: number;
@@ -66,7 +67,7 @@ const AdminPanel: React.FC = () => {
     marital_status: '',
     father_name: '',
     birth_place: '',
-    birth_date: null as any
+    birth_date: ''
   });
   const [instructorForm, setInstructorForm] = useState({
     name: '',
@@ -235,7 +236,7 @@ const AdminPanel: React.FC = () => {
       marital_status: u.marital_status || '',
       father_name: u.father_name || '',
       birth_place: u.birth_place || '',
-      birth_date: u.birth_date || null
+      birth_date: u.birth_date || ''
     });
     setEditingUserId(u.id);
     setIsEditingUser(true);
@@ -612,12 +613,9 @@ const AdminPanel: React.FC = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">تاریخ تولد (شمسی)</label>
-                                <input
-                                    type="text"
-                                    placeholder="مثال: ۱۳۷۵/۰۶/۱۵"
-                                    value={userForm.birth_date || ''}
-                                    onChange={(e) => setUserForm({...userForm, birth_date: e.target.value})}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand"
+                                <PersianDatePicker
+                                    value={userForm.birth_date}
+                                    onChange={(date) => setUserForm({...userForm, birth_date: date})}
                                 />
                             </div>
                             <div>

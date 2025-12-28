@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { UserPlus, CheckCircle } from 'lucide-react';
 import Button from '../components/Button';
 import { useAuth } from '../context/AuthContext';
+import PersianDatePicker from '../components/PersianDatePicker';
 
 const RegisterPage: React.FC = () => {
   const { register } = useAuth();
@@ -159,13 +160,9 @@ const RegisterPage: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 تاریخ تولد (شمسی) <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
-                required
-                placeholder="مثال: ۱۳۷۵/۰۶/۱۵"
-                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
+              <PersianDatePicker
                 value={formData.birthDate}
-                onChange={e => setFormData({...formData, birthDate: e.target.value})}
+                onChange={(date) => setFormData({...formData, birthDate: date})}
               />
             </div>
 
