@@ -51,6 +51,16 @@ const AdminPanel: React.FC = () => {
   const [instructorsLoading, setInstructorsLoading] = useState(false);
   const [isEditingInstructor, setIsEditingInstructor] = useState(false);
   const [editingInstructorId, setEditingInstructorId] = useState<number | null>(null);
+  
+  const [isEditingUser, setIsEditingUser] = useState(false);
+  const [editingUserId, setEditingUserId] = useState<number | null>(null);
+  const [userForm, setUserForm] = useState({
+    name: '',
+    phone: '',
+    role: 'student',
+    gender: '',
+    age: ''
+  });
   const [instructorForm, setInstructorForm] = useState({
     name: '',
     title: '',
@@ -213,6 +223,39 @@ const AdminPanel: React.FC = () => {
     }
     setEditingInstructorId(instructor.id);
     setIsEditingInstructor(true);
+  };
+
+  const handleEditUser = (u: UserInfo) => {
+    setUserForm({
+      name: u.name || '',
+      phone: u.phone || '',
+      role: u.role || 'student',
+      gender: u.gender || '',
+      age: u.age?.toString() || ''
+    });
+    setEditingUserId(u.id);
+    setIsEditingUser(true);
+  };
+
+  const handleUserSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUserId) return;
+
+    try {
+      await axios.put(`/api/admin/users/${editingUserId}`, {
+        name: userForm.name,
+        phone: userForm.phone,
+        role: userForm.role,
+        gender: userForm.gender || null,
+        age: userForm.age ? parseInt(userForm.age) : null
+      });
+      setIsEditingUser(false);
+      setEditingUserId(null);
+      loadUsers();
+    } catch (error) {
+      console.error('Error updating user:', error);
+      alert('خطا در بروزرسانی کاربر');
+    }
   };
 
   const handleDeleteInstructor = async (id: number) => {
@@ -500,6 +543,77 @@ const AdminPanel: React.FC = () => {
                     <h2 className="text-xl font-bold text-gray-900">لیست کاربران</h2>
                     <span className="text-sm bg-white px-3 py-1 rounded-full shadow-sm border border-gray-200">{toPersianDigits(users.length)} کاربر</span>
                 </div>
+                
+                {isEditingUser && (
+                    <div className="p-6 border-b border-gray-200 bg-blue-50">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="font-bold text-gray-900">ویرایش کاربر</h3>
+                            <button onClick={() => { setIsEditingUser(false); setEditingUserId(null); }} className="text-gray-500 hover:text-gray-700">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <form onSubmit={handleUserSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">نام</label>
+                                <input
+                                    type="text"
+                                    value={userForm.name}
+                                    onChange={(e) => setUserForm({...userForm, name: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">شماره تلفن</label>
+                                <input
+                                    type="text"
+                                    value={userForm.phone}
+                                    onChange={(e) => setUserForm({...userForm, phone: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">نقش</label>
+                                <select
+                                    value={userForm.role}
+                                    onChange={(e) => setUserForm({...userForm, role: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand"
+                                >
+                                    <option value="student">دانشجو</option>
+                                    <option value="admin">مدیر</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">جنسیت</label>
+                                <select
+                                    value={userForm.gender}
+                                    onChange={(e) => setUserForm({...userForm, gender: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand"
+                                >
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="male">مرد</option>
+                                    <option value="female">زن</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">سن</label>
+                                <input
+                                    type="number"
+                                    value={userForm.age}
+                                    onChange={(e) => setUserForm({...userForm, age: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand"
+                                    min="1"
+                                    max="120"
+                                />
+                            </div>
+                            <div className="flex items-end">
+                                <Button type="submit" className="w-full">ذخیره تغییرات</Button>
+                            </div>
+                        </form>
+                    </div>
+                )}
+                
                 {usersLoading ? (
                     <div className="p-12 text-center text-gray-500">
                         در حال بارگذاری...
@@ -544,6 +658,13 @@ const AdminPanel: React.FC = () => {
                                             {toPersianDigits(u.age)} سال
                                         </span>
                                     )}
+                                    <button 
+                                        onClick={() => handleEditUser(u)}
+                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                                        title="ویرایش"
+                                    >
+                                        <Edit size={18} />
+                                    </button>
                                 </div>
                             </div>
                         ))}

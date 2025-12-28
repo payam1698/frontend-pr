@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { 
   getAllUsers, 
   getUserById,
+  updateUser,
   getAllCourses, 
   createCourse, 
   updateCourse, 
@@ -25,6 +26,7 @@ router.use(requireAdmin);
 
 router.get('/users', getAllUsers);
 router.get('/users/:id', getUserById);
+router.put('/users/:id', updateUser);
 
 router.get('/courses', getAllCourses);
 router.post('/courses', createCourse);
