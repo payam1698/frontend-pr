@@ -37,31 +37,31 @@ interface McmiReportViewProps {
 }
 
 const scaleNames: Record<string, { code: string; name: string }> = {
-  '1': { code: '1', name: 'Schizoid' },
-  '2': { code: '2', name: 'Avoidant' },
-  '3': { code: '3', name: 'Dependent' },
-  '4': { code: '4', name: 'Histrionic' },
-  '5': { code: '5', name: 'Narcissistic' },
-  '6': { code: '6', name: 'Antisocial' },
-  '7': { code: '7', name: 'Compulsive' },
-  '8': { code: '8', name: 'Passive-Aggressive' },
-  '9': { code: 'S', name: 'Schizotypal' },
-  '10': { code: 'C', name: 'Borderline' },
-  '11': { code: 'P', name: 'Paranoid' },
-  '12': { code: 'A', name: 'Anxiety' },
-  '13': { code: 'H', name: 'Somatoform' },
-  '14': { code: 'N', name: 'Bipolar: Manic' },
-  '15': { code: 'D', name: 'Dysthymia' },
-  '16': { code: 'B', name: 'Alcohol Dependence' },
-  '17': { code: 'T', name: 'Drug Dependence' },
-  '18': { code: 'SS', name: 'Thought Disorder' },
-  '19': { code: 'CC', name: 'Major Depression' },
-  '20': { code: 'PP', name: 'Delusional Disorder' },
-  '21': { code: 'X', name: 'Disclosure' },
-  '22': { code: 'Y', name: 'Desirability' },
-  '23': { code: 'Z', name: 'Debasement' },
-  '24': { code: 'V', name: 'Validity' },
-  '25': { code: '8A', name: 'Self-Defeating' }
+  '1': { code: 'Y', name: 'Desirability' },
+  '2': { code: 'Z', name: 'Debasement' },
+  '3': { code: '1', name: 'Schizoid' },
+  '4': { code: '2', name: 'Avoidant' },
+  '5': { code: '3', name: 'Dependent' },
+  '6': { code: '4', name: 'Histrionic' },
+  '7': { code: '5', name: 'Narcissistic' },
+  '8': { code: '6A', name: 'Antisocial' },
+  '9': { code: '6B', name: 'Aggressive/Sadistic' },
+  '10': { code: '7', name: 'Compulsive' },
+  '11': { code: '8A', name: 'Passive-Aggressive' },
+  '12': { code: '8B', name: 'Self-defeating' },
+  '13': { code: 'S', name: 'Schizotypal' },
+  '14': { code: 'C', name: 'Borderline' },
+  '15': { code: 'P', name: 'Paranoid' },
+  '16': { code: 'A', name: 'Anxiety' },
+  '17': { code: 'H', name: 'Somatoform' },
+  '18': { code: 'N', name: 'Bipolar:Manic' },
+  '19': { code: 'D', name: 'Dysthymia' },
+  '20': { code: 'B', name: 'Alcohol dependence' },
+  '21': { code: 'T', name: 'Drug dependence' },
+  '22': { code: 'SS', name: 'Thought Disorder' },
+  '23': { code: 'CC', name: 'Major Depression' },
+  '24': { code: 'PP', name: 'Delusional disorder' },
+  '25': { code: 'X', name: 'Disclosure' }
 };
 
 const McmiReportView: React.FC<McmiReportViewProps> = ({ testData, onBack }) => {
@@ -75,7 +75,7 @@ const McmiReportView: React.FC<McmiReportViewProps> = ({ testData, onBack }) => 
     );
   }
 
-  const scaleOrder = ['25', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24'];
+  const scaleOrder = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25'];
 
   const getInpLabel = (val: string | undefined) => {
     switch(val) {
