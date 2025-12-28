@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { UserPlus, CheckCircle } from 'lucide-react';
 import Button from '../components/Button';
 import { useAuth } from '../context/AuthContext';
+import DatePicker from 'react-multi-date-picker';
+import persian from 'react-date-object/calendars/persian';
+import persian_fa from 'react-date-object/locales/persian_fa';
 
 const RegisterPage: React.FC = () => {
   const { register } = useAuth();
@@ -12,8 +15,10 @@ const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState({
     fullNameFa: '',
     fullNameEn: '',
-    age: '',
-    gender: 'male' as 'male' | 'female',
+    fatherName: '',
+    birthPlace: '',
+    birthDate: null as any,
+    gender: '' as '' | 'male' | 'female',
     education: '',
     maritalStatus: '',
     mobile: '',
@@ -30,22 +35,28 @@ const RegisterPage: React.FC = () => {
       return;
     }
 
-    // نگاشت داده‌های فرم به ساختار مورد انتظار بک‌اِند (بسیار مهم)
+    if (!formData.birthDate) {
+      setError('لطفاً تاریخ تولد را وارد کنید.');
+      return;
+    }
+
+    const birthDateStr = formData.birthDate?.format?.('YYYY/MM/DD') || '';
+
     const userData = {
-      name: formData.fullNameFa,           // در بک‌اِند شما 'name' الزامی است
-      full_name_en: formData.fullNameEn,   // مطابق دیتابیس شما
-      phone: formData.mobile,              // در بک‌اِند شما 'phone' الزامی است
-      password: formData.nationalCode,      // کد ملی به عنوان پسورد
-      age: parseInt(formData.age) || 0,
+      name: formData.fullNameFa,
+      fullNameEn: formData.fullNameEn,
+      phone: formData.mobile,
+      password: formData.nationalCode,
       gender: formData.gender,
       education: formData.education,
-      marital_status: formData.maritalStatus,
-      role: 'student'                      // نقش پیش‌فرض
+      maritalStatus: formData.maritalStatus,
+      fatherName: formData.fatherName,
+      birthPlace: formData.birthPlace,
+      birthDate: birthDateStr
     };
 
     try {
-      const result = await register(userData);
-      // فرض بر این است که تابع register در صورت خطا، یک Error پرتاب می‌کند یا نتیجه را برمی‌گرداند
+      await register(userData);
       setSuccess(true);
     } catch (err: any) {
       setError(err.message || 'خطا در برقراری ارتباط با سرور');
@@ -97,7 +108,9 @@ const RegisterPage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">نام و نام خانوادگی (فارسی)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                نام و نام خانوادگی (فارسی) <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 required
@@ -108,7 +121,9 @@ const RegisterPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">نام و نام خانوادگی (انگلیسی)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                نام و نام خانوادگی (انگلیسی) <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 required
@@ -120,51 +135,96 @@ const RegisterPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">سن</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                نام پدر <span className="text-red-500">*</span>
+              </label>
               <input
-                type="number"
+                type="text"
                 required
-                min="10"
-                max="100"
                 className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
-                value={formData.age}
-                onChange={e => setFormData({...formData, age: e.target.value})}
+                value={formData.fatherName}
+                onChange={e => setFormData({...formData, fatherName: e.target.value})}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">جنسیت</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                محل تولد <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
+                value={formData.birthPlace}
+                onChange={e => setFormData({...formData, birthPlace: e.target.value})}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                تاریخ تولد <span className="text-red-500">*</span>
+              </label>
+              <DatePicker
+                value={formData.birthDate}
+                onChange={(date) => setFormData({...formData, birthDate: date})}
+                calendar={persian}
+                locale={persian_fa}
+                calendarPosition="bottom-right"
+                inputClass="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
+                containerClassName="w-full"
+                placeholder="انتخاب تاریخ تولد"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                جنسیت <span className="text-red-500">*</span>
+              </label>
               <select
+                required
                 className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
                 value={formData.gender}
                 onChange={e => setFormData({...formData, gender: e.target.value as 'male' | 'female'})}
               >
+                <option value="">انتخاب کنید...</option>
                 <option value="male">مرد</option>
                 <option value="female">زن</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">میزان تحصیلات</label>
-              <input
-                type="text"
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                میزان تحصیلات <span className="text-red-500">*</span>
+              </label>
+              <select
                 required
                 className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
                 value={formData.education}
                 onChange={e => setFormData({...formData, education: e.target.value})}
-              />
+              >
+                <option value="">انتخاب کنید...</option>
+                <option value="زیر دیپلم">زیر دیپلم</option>
+                <option value="دیپلم">دیپلم</option>
+                <option value="کاردانی">کاردانی</option>
+                <option value="کارشناسی">کارشناسی</option>
+                <option value="کارشناسی ارشد">کارشناسی ارشد</option>
+                <option value="دکتری">دکتری</option>
+              </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">وضعیت تأهل</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                وضعیت تأهل <span className="text-red-500">*</span>
+              </label>
               <select
-                 className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
-                 value={formData.maritalStatus}
-                 onChange={e => setFormData({...formData, maritalStatus: e.target.value})}
+                required
+                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
+                value={formData.maritalStatus}
+                onChange={e => setFormData({...formData, maritalStatus: e.target.value})}
               >
-                 <option value="">انتخاب کنید...</option>
-                 <option value="مجرد">مجرد</option>
-                 <option value="متاهل">متاهل</option>
+                <option value="">انتخاب کنید...</option>
+                <option value="مجرد">مجرد</option>
+                <option value="متاهل">متاهل</option>
               </select>
             </div>
 
@@ -173,7 +233,9 @@ const RegisterPage: React.FC = () => {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">شماره همراه (نام کاربری)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                شماره همراه (نام کاربری) <span className="text-red-500">*</span>
+              </label>
               <input
                 type="tel"
                 required
@@ -186,7 +248,9 @@ const RegisterPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">کد ملی (رمز عبور)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                کد ملی (رمز عبور) <span className="text-red-500">*</span>
+              </label>
               <input
                 type="password"
                 required
@@ -198,7 +262,9 @@ const RegisterPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">تکرار رمز عبور</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                تکرار رمز عبور <span className="text-red-500">*</span>
+              </label>
               <input
                 type="password"
                 required
