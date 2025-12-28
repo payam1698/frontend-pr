@@ -187,21 +187,34 @@ const McmiPage: React.FC = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">میزان تحصیلات</label>
-            <input
-              type="text"
+            <select
               className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
               value={userInfo.education}
               onChange={e => setUserInfo({...userInfo, education: e.target.value})}
-            />
+            >
+              <option value="">انتخاب کنید</option>
+              <option value="زیر دیپلم">زیر دیپلم</option>
+              <option value="دیپلم">دیپلم</option>
+              <option value="فوق دیپلم">فوق دیپلم</option>
+              <option value="کارشناسی">کارشناسی</option>
+              <option value="کارشناسی ارشد">کارشناسی ارشد</option>
+              <option value="دکتری">دکتری</option>
+              <option value="حوزوی">حوزوی</option>
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">وضعیت تأهل</label>
-            <input
-              type="text"
+            <select
               className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
               value={userInfo.maritalStatus}
               onChange={e => setUserInfo({...userInfo, maritalStatus: e.target.value})}
-            />
+            >
+              <option value="">انتخاب کنید</option>
+              <option value="مجرد">مجرد</option>
+              <option value="متأهل">متأهل</option>
+              <option value="مطلقه">مطلقه</option>
+              <option value="بیوه">بیوه</option>
+            </select>
           </div>
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-2">وضعیت بستری (طول اپیزود Axis-I)</label>
