@@ -6,6 +6,7 @@ import { User, FileText, Mail, Calendar, ChevronLeft, Play, CheckCircle } from '
 import { toPersianDigits } from '../utils';
 import axios from 'axios';
 import McmiReportView from '../components/McmiReportView';
+import PersianDatePicker from '../components/PersianDatePicker';
 
 interface TestResult {
   id: number;
@@ -32,10 +33,12 @@ const StudentPanel: React.FC = () => {
   const [profileForm, setProfileForm] = useState({
     name: '',
     full_name_en: '',
-    age: '',
     gender: 'male',
     education: '',
-    marital_status: ''
+    marital_status: '',
+    father_name: '',
+    birth_place: '',
+    birth_date: ''
   });
 
   useEffect(() => {
@@ -72,10 +75,12 @@ const StudentPanel: React.FC = () => {
         setProfileForm({
           name: data.name || '',
           full_name_en: data.full_name_en || '',
-          age: data.age?.toString() || '',
           gender: data.gender || 'male',
           education: data.education || '',
-          marital_status: data.marital_status || ''
+          marital_status: data.marital_status || '',
+          father_name: data.father_name || '',
+          birth_place: data.birth_place || '',
+          birth_date: data.birth_date || ''
         });
       }
     } catch (error) {
@@ -86,10 +91,7 @@ const StudentPanel: React.FC = () => {
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.put('/api/student/profile', {
-        ...profileForm,
-        age: parseInt(profileForm.age) || null
-      });
+      await axios.put('/api/student/profile', profileForm);
       alert('پروفایل با موفقیت به‌روزرسانی شد.');
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -270,27 +272,41 @@ const StudentPanel: React.FC = () => {
                       onChange={e => setProfileForm({ ...profileForm, full_name_en: e.target.value })}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-1">سن</label>
-                      <input
-                        type="number"
-                        className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
-                        value={profileForm.age}
-                        onChange={e => setProfileForm({ ...profileForm, age: e.target.value })}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-1">جنسیت</label>
-                      <select
-                        className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
-                        value={profileForm.gender}
-                        onChange={e => setProfileForm({ ...profileForm, gender: e.target.value })}
-                      >
-                        <option value="male">مرد</option>
-                        <option value="female">زن</option>
-                      </select>
-                    </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">نام پدر</label>
+                    <input
+                      type="text"
+                      className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
+                      value={profileForm.father_name}
+                      onChange={e => setProfileForm({ ...profileForm, father_name: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">محل تولد</label>
+                    <input
+                      type="text"
+                      className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
+                      value={profileForm.birth_place}
+                      onChange={e => setProfileForm({ ...profileForm, birth_place: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">تاریخ تولد</label>
+                    <PersianDatePicker
+                      value={profileForm.birth_date}
+                      onChange={(date) => setProfileForm({ ...profileForm, birth_date: date })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">جنسیت</label>
+                    <select
+                      className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand focus:border-brand"
+                      value={profileForm.gender}
+                      onChange={e => setProfileForm({ ...profileForm, gender: e.target.value })}
+                    >
+                      <option value="male">مرد</option>
+                      <option value="female">زن</option>
+                    </select>
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">تحصیلات</label>
@@ -300,10 +316,12 @@ const StudentPanel: React.FC = () => {
                       onChange={e => setProfileForm({ ...profileForm, education: e.target.value })}
                     >
                       <option value="">انتخاب کنید</option>
-                      <option value="diploma">دیپلم</option>
-                      <option value="bachelor">کارشناسی</option>
-                      <option value="master">کارشناسی ارشد</option>
-                      <option value="phd">دکتری</option>
+                      <option value="زیر دیپلم">زیر دیپلم</option>
+                      <option value="دیپلم">دیپلم</option>
+                      <option value="فوق دیپلم">فوق دیپلم</option>
+                      <option value="لیسانس">لیسانس</option>
+                      <option value="فوق لیسانس">فوق لیسانس</option>
+                      <option value="دکتری">دکتری</option>
                     </select>
                   </div>
                   <div>
@@ -314,9 +332,10 @@ const StudentPanel: React.FC = () => {
                       onChange={e => setProfileForm({ ...profileForm, marital_status: e.target.value })}
                     >
                       <option value="">انتخاب کنید</option>
-                      <option value="single">مجرد</option>
-                      <option value="married">متأهل</option>
-                      <option value="divorced">مطلقه</option>
+                      <option value="مجرد">مجرد</option>
+                      <option value="متأهل">متأهل</option>
+                      <option value="مطلقه">مطلقه</option>
+                      <option value="همسر فوت شده">همسر فوت شده</option>
                     </select>
                   </div>
                   <Button type="submit" className="w-full mt-4">

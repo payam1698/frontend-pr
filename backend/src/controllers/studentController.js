@@ -17,15 +17,17 @@ export const getProfile = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { name, full_name_en, age, gender, education, marital_status } = req.body;
+    const { name, full_name_en, gender, education, marital_status, father_name, birth_place, birth_date } = req.body;
     
     await req.user.update({
       name: name || req.user.name,
       full_name_en: full_name_en || req.user.full_name_en,
-      age: age || req.user.age,
       gender: gender || req.user.gender,
       education: education || req.user.education,
-      marital_status: marital_status || req.user.marital_status
+      marital_status: marital_status || req.user.marital_status,
+      father_name: father_name || req.user.father_name,
+      birth_place: birth_place || req.user.birth_place,
+      birth_date: birth_date || req.user.birth_date
     });
 
     res.json({
