@@ -117,7 +117,7 @@ export const getUserById = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, phone, role, gender, age } = req.body;
+    const { name, phone, role, gender, education, marital_status, father_name, birth_place, birth_date } = req.body;
 
     const user = await User.findByPk(id);
     if (!user) {
@@ -127,7 +127,7 @@ export const updateUser = async (req, res) => {
       });
     }
 
-    await user.update({ name, phone, role, gender, age });
+    await user.update({ name, phone, role, gender, education, marital_status, father_name, birth_place, birth_date });
 
     const updatedUser = await User.findByPk(id, {
       attributes: { exclude: ['password'] }

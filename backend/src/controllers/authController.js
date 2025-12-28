@@ -3,12 +3,12 @@ import { generateToken } from '../middleware/jwtAuth.js';
 
 export const register = async (req, res) => {
   try {
-    const { name, phone, password, fullNameEn, age, gender, education, maritalStatus } = req.body;
+    const { name, phone, password, fullNameEn, gender, education, maritalStatus, fatherName, birthPlace, birthDate } = req.body;
 
-    if (!name || !phone || !password) {
+    if (!name || !phone || !password || !gender || !education || !fatherName || !birthPlace || !birthDate) {
       return res.status(400).json({
         success: false,
-        message: 'Name, phone, and password are required'
+        message: 'تمام فیلدها الزامی هستند'
       });
     }
 
@@ -25,10 +25,12 @@ export const register = async (req, res) => {
       phone,
       password,
       full_name_en: fullNameEn || null,
-      age: age || null,
       gender: gender || null,
       education: education || null,
       marital_status: maritalStatus || null,
+      father_name: fatherName || null,
+      birth_place: birthPlace || null,
+      birth_date: birthDate || null,
       role: 'student'
     });
 

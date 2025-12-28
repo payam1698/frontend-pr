@@ -44,6 +44,18 @@ const User = sequelize.define('User', {
   marital_status: {
     type: DataTypes.STRING(50),
     allowNull: true
+  },
+  father_name: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  birth_place: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  birth_date: {
+    type: DataTypes.STRING(20),
+    allowNull: true
   }
 }, {
   tableName: 'users',
