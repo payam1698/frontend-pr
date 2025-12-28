@@ -1178,10 +1178,23 @@ export const calculateScores = (
   const baseRates: Record<string, number> = {};
   const adjustedScores: Record<string, any> = {};
 
+  // DEBUG: Log raw scores
+  console.log('=== MCMI-II DEBUG: Raw Scores ===');
+  console.log('Gender:', userInfo.gender);
+  Object.keys(rawScores).sort((a, b) => parseInt(a) - parseInt(b)).forEach(k => {
+    console.log(`Scale ${k}: Raw = ${rawScores[k]}`);
+  });
+
   // Calculate Base Rates
   for (const scaleId in rawScores) {
     baseRates[scaleId] = lookupBR(scaleId, rawScores[scaleId], userInfo.gender);
   }
+
+  // DEBUG: Log BR conversions
+  console.log('=== MCMI-II DEBUG: BR Conversions ===');
+  Object.keys(baseRates).sort((a, b) => parseInt(a) - parseInt(b)).forEach(k => {
+    console.log(`Scale ${k}: Raw ${rawScores[k]} -> BR ${baseRates[k]}`);
+  });
 
   // --- ADJUSTMENTS ---
 
@@ -1434,6 +1447,17 @@ export const calculateScores = (
 
   Object.keys(finalBR).forEach(k => finalBR[k] = Math.round(finalBR[k]));
 
+  // DEBUG: Log X calculation and final scores
+  console.log('=== MCMI-II DEBUG: X (Disclosure) Calculation ===');
+  console.log('rrawx (weighted sum):', rrawx);
+  console.log('xcor:', xcor, 'hxcor:', hxcor);
+  console.log('xValue (Disclosure BR):', xValue);
+  
+  console.log('=== MCMI-II DEBUG: Final Scores ===');
+  Object.keys(finalBR).sort((a, b) => parseInt(a) - parseInt(b)).forEach(k => {
+    console.log(`Scale ${k}: Final BR = ${finalBR[k]}`);
+  });
+
   Object.keys(baseRates).forEach(k => {
       adjustedScores[k] = {
           raw: rawScores[k],
@@ -1447,6 +1471,21 @@ export const calculateScores = (
           final: finalBR[k]
       };
   });
+
+  // Add scale 25 (X/Disclosure) to adjustedScores
+  adjustedScores['25'] = {
+    raw: rrawx,
+    br: xValue,
+    xCor: 0,
+    hxCor: 0,
+    daAdj: null,
+    ddAdj: null,
+    dcAdj: null,
+    inpAdj: null,
+    final: xValue
+  };
+  rawScores['25'] = rrawx;
+  baseRates['25'] = xValue;
 
   return {
       rawScores,
