@@ -1,18 +1,49 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ArrowLeft, CheckCircle2, Brain, Baby, Users, HeartPulse, GraduationCap, Sparkles, Calendar, BookOpen } from 'lucide-react';
-import { instructors, categories, testimonials } from '../data/mockData';
+import { categories, testimonials } from '../data/mockData';
 import { blogPosts } from '../data/blogData';
 import { useCourses } from '../context/CourseContext';
 import { toPersianDigits } from '../utils';
 import Button from '../components/Button';
 import CourseCard from '../components/CourseCard';
-import HeroSlider from '../components/HeroSlider'; // Import the new slider
+import HeroSlider from '../components/HeroSlider';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+
+interface Instructor {
+  id: number;
+  name: string;
+  title: string;
+  experience: string;
+  courses_description: string;
+  image: string | null;
+  status: string;
+}
 
 const Home: React.FC = () => {
   const { courses } = useCourses();
+  const [instructors, setInstructors] = useState<Instructor[]>([]);
   const iconMap: Record<string, any> = { Brain, Baby, Users, HeartPulse, GraduationCap, Sparkles };
+
+  useEffect(() => {
+    const fetchInstructors = async () => {
+      try {
+        const response = await axios.get('/api/instructors');
+        if (response.data.success) {
+          setInstructors(response.data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching instructors:', error);
+      }
+    };
+    fetchInstructors();
+  }, []);
+
+  const getImageUrl = (instructor: Instructor) => {
+    if (instructor.image) return instructor.image;
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(instructor.name)}&background=002147&color=fff&size=200`;
+  };
 
   // Section Divider with Mustard Highlight
   const SectionDivider = () => (
@@ -96,7 +127,7 @@ const Home: React.FC = () => {
                 <div key={inst.id} className="bg-white rounded-3xl p-6 text-center shadow-md shadow-gray-200 hover:shadow-xl transition-all h-full flex flex-col border border-transparent hover:border-[#D4A017]/30">
                     <div className="w-28 h-28 mx-auto rounded-full p-1 border-2 border-brand/10 mb-6 relative group">
                         <img 
-                          src={inst.image} 
+                          src={getImageUrl(inst)} 
                           alt={inst.name} 
                           loading="lazy"
                           className="w-full h-full rounded-full object-cover group-hover:scale-105 transition-transform duration-300" 
@@ -107,7 +138,7 @@ const Home: React.FC = () => {
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">{inst.name}</h3>
                     <p className="text-brand font-medium text-sm mb-4">{inst.title}</p>
-                    <p className="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-2 flex-grow">{inst.description}</p>
+                    <p className="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-2 flex-grow">{inst.experience || inst.courses_description || ''}</p>
                     <Link to={`/instructors/${inst.id}`} className="mt-auto">
                       <Button variant="outline" size="sm" className="w-full hover:bg-brand hover:text-white hover:border-brand">مشاهده رزومه</Button>
                     </Link>

@@ -11,6 +11,7 @@ import testRoutes from './src/routes/test.js';
 import adminRoutes from './src/routes/admin.js';
 import studentRoutes from './src/routes/student.js';
 import coursesRoutes from './src/routes/courses.js';
+import instructorsRoutes from './src/routes/instructors.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,6 +44,7 @@ app.use('/api/test', testRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/courses', coursesRoutes);
+app.use('/api/instructors', instructorsRoutes);
 
 app.use((err, req, res, next) => {
   console.error('Error:', err);
