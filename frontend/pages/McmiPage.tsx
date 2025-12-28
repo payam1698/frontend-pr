@@ -83,8 +83,12 @@ const McmiPage: React.FC = () => {
   };
 
   const finishTest = async () => {
+    console.log('=== MCMI TEST SUBMISSION START ===');
+    console.log('Answers count:', answers.length);
+    console.log('UserInfo:', JSON.stringify(userInfo));
+    console.log('First 10 answers:', answers.slice(0, 10));
+    
     try {
-      // Submit to backend to save results
       const response = await fetch('/api/test/submit', {
         method: 'POST',
         headers: {
@@ -96,20 +100,32 @@ const McmiPage: React.FC = () => {
       
       const data = await response.json();
       
+      console.log('=== BACKEND RESPONSE ===');
+      console.log('Success:', data.success);
+      console.log('Full response data:', JSON.stringify(data, null, 2));
+      
       if (data.success) {
+        console.log('=== REPORT FROM BACKEND ===');
+        console.log('Raw Scores:', JSON.stringify(data.data.report.rawScores));
+        console.log('Base Rates:', JSON.stringify(data.data.report.baseRates));
+        console.log('X Score:', data.data.report.xScore);
+        if (data.data.report.adjustedScores) {
+          console.log('Adjusted Scores (Scale 3):', JSON.stringify(data.data.report.adjustedScores['3']));
+          console.log('Adjusted Scores (Scale 16):', JSON.stringify(data.data.report.adjustedScores['16']));
+        }
         setReport(data.data.report);
         console.log('✅ Test results saved successfully');
       } else {
-        // Fallback to local calculation if backend fails
+        console.error('Backend save failed:', data.message);
         const result = calculateScores(answers, userInfo);
+        console.log('FALLBACK Local calculation used');
         setReport(result);
-        console.error('Backend save failed, using local calculation');
       }
     } catch (error) {
-      // Fallback to local calculation
-      const result = calculateScores(answers, userInfo);
-      setReport(result);
       console.error('Error submitting test:', error);
+      const result = calculateScores(answers, userInfo);
+      console.log('FALLBACK Local calculation used due to error');
+      setReport(result);
     }
     
     setStep('report');
