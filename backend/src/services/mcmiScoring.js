@@ -435,6 +435,7 @@ export const calculateScores = (answers, userInfo) => {
   else if (rrawx >= 220 && rrawx <= 229) { xcor = 3; hxcor = 1; }
   else if (rrawx >= 230 && rrawx <= 239) { xcor = 2; hxcor = 1; }
   else if (rrawx >= 240 && rrawx <= 249) { xcor = 1; hxcor = 0; }
+  else if (rrawx >= 250 && rrawx <= 400) { xcor = 0; hxcor = 0; }
   else if (rrawx >= 401 && rrawx <= 416) { xcor = -1; hxcor = 0; }
   else if (rrawx >= 417 && rrawx <= 432) { xcor = -2; hxcor = -1; }
   else if (rrawx >= 433 && rrawx <= 448) { xcor = -3; hxcor = -1; }
@@ -487,16 +488,21 @@ export const calculateScores = (answers, userInfo) => {
 
   Object.keys(baseRates).forEach(k => {
     const legacyIndex = parseInt(k);
+    if (rawScores[k] === 0) {
+      afterCor[k] = 0;
+      afterHCor[k] = 0;
+      return;
+    }
     if (![1, 2, 13, 14, 15, 22, 23, 24].includes(legacyIndex)) {
-      afterCor[k] = baseRates[k] + xcor;
+      afterCor[k] = Math.max(0, baseRates[k] + xcor);
     } else {
       afterCor[k] = baseRates[k];
     }
 
     if ([13, 14, 15, 22, 23, 24].includes(legacyIndex)) {
-      afterHCor[k] = baseRates[k] + hxcor;
+      afterHCor[k] = Math.max(0, baseRates[k] + hxcor);
     } else {
-      afterHCor[k] = baseRates[k];
+      afterHCor[k] = afterCor[k];
     }
   });
 
@@ -546,9 +552,9 @@ export const calculateScores = (answers, userInfo) => {
   }
 
   const daBr = {};
-  daBr['4'] = afterCor['4'] - da;
-  daBr['12'] = afterCor['12'] - da;
-  daBr['14'] = afterHCor['14'] - dac;
+  daBr['4'] = rawScores['4'] === 0 ? 0 : Math.max(0, afterCor['4'] - da);
+  daBr['12'] = rawScores['12'] === 0 ? 0 : Math.max(0, afterCor['12'] - da);
+  daBr['14'] = rawScores['14'] === 0 ? 0 : Math.max(0, afterHCor['14'] - dac);
 
   let dd = (baseRates['1'] - baseRates['2']) / 10;
   if (Math.abs(dd - Math.round(dd)) === 0.5) {
@@ -560,11 +566,11 @@ export const calculateScores = (answers, userInfo) => {
   if (rdd < -10) rdd = -10;
 
   const ddBr = {};
-  ddBr['13'] = afterHCor['13'] + rdd;
-  ddBr['14'] = daBr['14'] + rdd;
-  ddBr['16'] = afterCor['16'] + rdd;
-  ddBr['17'] = afterCor['17'] + rdd;
-  ddBr['19'] = afterCor['19'] + rdd;
+  ddBr['13'] = rawScores['13'] === 0 ? 0 : afterHCor['13'] + rdd;
+  ddBr['14'] = rawScores['14'] === 0 ? 0 : daBr['14'] + rdd;
+  ddBr['16'] = rawScores['16'] === 0 ? 0 : afterCor['16'] + rdd;
+  ddBr['17'] = rawScores['17'] === 0 ? 0 : afterCor['17'] + rdd;
+  ddBr['19'] = rawScores['19'] === 0 ? 0 : afterCor['19'] + rdd;
 
   const forDC = {};
   for(let i=3; i<=12; i++) {
@@ -598,27 +604,27 @@ export const calculateScores = (answers, userInfo) => {
   const dcBr = {};
   dcBr['13'] = ddBr['13'];
   dcBr['14'] = ddBr['14'];
-  dcBr['15'] = afterHCor['15'];
+  dcBr['15'] = rawScores['15'] === 0 ? 0 : afterHCor['15'];
   dcBr['16'] = ddBr['16'];
   dcBr['17'] = ddBr['17'];
   dcBr['19'] = ddBr['19'];
 
   if ([6, 7, 10].includes(g) || gp === 10) {
-    dcBr['13'] += 4;
-    dcBr['14'] += 4;
-    dcBr['15'] += 2;
-    dcBr['16'] += 15;
-    dcBr['19'] += 15;
-    dcBr['17'] += 13;
+    if (rawScores['13'] !== 0) dcBr['13'] += 4;
+    if (rawScores['14'] !== 0) dcBr['14'] += 4;
+    if (rawScores['15'] !== 0) dcBr['15'] += 2;
+    if (rawScores['16'] !== 0) dcBr['16'] += 15;
+    if (rawScores['19'] !== 0) dcBr['19'] += 15;
+    if (rawScores['17'] !== 0) dcBr['17'] += 13;
   }
 
   if ([12, 4].includes(g) || gp === 4) {
-    dcBr['13'] -= 2;
-    dcBr['14'] -= 6;
-    dcBr['15'] -= 6;
-    dcBr['16'] -= 7;
-    dcBr['17'] -= 5;
-    dcBr['19'] -= 5;
+    if (rawScores['13'] !== 0) dcBr['13'] -= 2;
+    if (rawScores['14'] !== 0) dcBr['14'] -= 6;
+    if (rawScores['15'] !== 0) dcBr['15'] -= 6;
+    if (rawScores['16'] !== 0) dcBr['16'] -= 7;
+    if (rawScores['17'] !== 0) dcBr['17'] -= 5;
+    if (rawScores['19'] !== 0) dcBr['19'] -= 5;
   }
 
   const finalInp = {};
@@ -629,22 +635,27 @@ export const calculateScores = (answers, userInfo) => {
     ssAdj = 5; ccAdj = 7; ppAdj = 2;
   }
 
-  finalInp['22'] = afterHCor['22'] + ssAdj;
-  finalInp['23'] = afterHCor['23'] + ccAdj;
-  finalInp['24'] = afterHCor['24'] + ppAdj;
+  finalInp['22'] = rawScores['22'] === 0 ? 0 : afterHCor['22'] + ssAdj;
+  finalInp['23'] = rawScores['23'] === 0 ? 0 : afterHCor['23'] + ccAdj;
+  finalInp['24'] = rawScores['24'] === 0 ? 0 : afterHCor['24'] + ppAdj;
 
   const finalBR = {};
-  finalBR['1'] = baseRates['1'];
-  finalBR['2'] = baseRates['2'];
-  ['3', '5', '6', '7', '8', '9', '10', '11', '18', '20', '21'].forEach(k => finalBR[k] = afterCor[k]);
+  finalBR['1'] = rawScores['1'] === 0 ? 0 : baseRates['1'];
+  finalBR['2'] = rawScores['2'] === 0 ? 0 : baseRates['2'];
+  ['3', '5', '6', '7', '8', '9', '10', '11', '18', '20', '21'].forEach(k => {
+    finalBR[k] = rawScores[k] === 0 ? 0 : afterCor[k];
+  });
   finalBR['4'] = daBr['4'];
   finalBR['12'] = daBr['12'];
   ['13', '14', '15', '16', '17', '19'].forEach(k => finalBR[k] = dcBr[k]);
   ['22', '23', '24'].forEach(k => finalBR[k] = finalInp[k]);
 
-  Object.keys(finalBR).forEach(k => finalBR[k] = Math.round(finalBR[k]));
+  Object.keys(finalBR).forEach(k => {
+    finalBR[k] = Math.max(0, Math.round(finalBR[k]));
+  });
 
   console.log('Final BR Scores:', JSON.stringify(finalBR));
+  console.log('Zero raw check - Scale 16 raw:', rawScores['16'], 'final:', finalBR['16']);
 
   Object.keys(baseRates).forEach(k => {
     adjustedScores[k] = {
@@ -663,8 +674,8 @@ export const calculateScores = (answers, userInfo) => {
   adjustedScores['25'] = {
     raw: rrawx,
     br: xValue,
-    xCor: 0,
-    hxCor: 0,
+    xCor: xcor,
+    hxCor: hxcor,
     daAdj: null,
     ddAdj: null,
     dcAdj: null,
