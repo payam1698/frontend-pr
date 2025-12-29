@@ -119,12 +119,19 @@ The MCMI-II test scoring follows a complete workflow:
 3. **Report View**: `frontend/components/McmiReportView.tsx` - English-only report display
 
 ## Recent Changes
+- **2025-12-29**: MCMI-II scoring adjustment logic refactored
+  - Rewrote adjustment pipeline to use scale names directly instead of positional indices
+  - Fixed aftercor baseline: non-xcor scales now retain rawBR values for DD/DC adjustments
+  - Fixed DC pattern triggers: checks both g and gp against full pattern arrays
+  - Scale groups defined explicitly: xcorScales, hxcorScales, daScales, dacScales, ddScales
+  - DC positive patterns: ['4', '5', '7'] (Histrionic, Narcissistic, Compulsive)
+  - DC negative patterns: ['2', '8B'] (Avoidant, Self-defeating)
 - **2025-12-28**: MCMI-II scoring bug fixes and verification
   - Fixed female scale '9' (6B/Aggressive-Sadistic) BR lookup table to match reference
   - Fixed zero raw score rule: if rawScore === 0, final score remains 0 (no positive adjustments)
   - Fixed X score calculation: uses rrawx formula as the raw score for scale 25
   - Verified all adjustment logic (X correction, DA, DD, DC, Inpatient) matches reference
-  - Reference source: `attached_assets/MCMI-II-lastver_1766953261178.txt` (verified 2025-12-28)
+  - Reference source: `attached_assets/MCMI-II-lastver_1766997502116.txt` (verified 2025-12-29)
 - **2025-12-28**: Standardized MCMI-II reporting system
   - Updated scale order and English names across frontend and backend
   - Consistent scaleNames in mcmiScoring.ts and mcmiScoring.js
