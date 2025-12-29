@@ -458,59 +458,53 @@ export function calculateMcmiScores(answers, gender, inpatientStatus = 1) {
     }
   }
 
-  const results = [];
+  const adjustedScores = {};
   for (let i = 0; i < scaleOrder.length; i++) {
     const scale = scaleOrder[i];
-    results.push({
-      scale: scale,
-      name: scaleNames[i],
-      rawScore: rawScores[scale],
-      brFromTable: rawBR[scale],
-      brXCor: aftercor[scale],
-      brHalfXCor: afterhcor[scale],
-      brDAAdj: dabr[scale],
-      brDDAdj: afterddcor[scale],
-      brDCAdj: afterdccor[scale],
-      brInpAdj: afterinp[scale],
-      finalBR: afterall[scale]
-    });
+    const numericId = String(i + 1);
+    adjustedScores[numericId] = {
+      raw: rawScores[scale],
+      br: rawBR[scale],
+      xCor: aftercor[scale],
+      hxCor: afterhcor[scale],
+      daAdj: dabr[scale],
+      ddAdj: afterddcor[scale],
+      dcAdj: afterdccor[scale],
+      inpAdj: afterinp[scale],
+      final: afterall[scale]
+    };
   }
 
-  results.push({
-    scale: 'X',
-    name: 'Disclosure',
-    rawScore: rrawx,
-    brFromTable: xScore,
-    brXCor: null,
-    brHalfXCor: null,
-    brDAAdj: null,
-    brDDAdj: null,
-    brDCAdj: null,
-    brInpAdj: null,
-    finalBR: xScore
-  });
+  adjustedScores['25'] = {
+    raw: rrawx,
+    br: xScore,
+    xCor: null,
+    hxCor: null,
+    daAdj: null,
+    ddAdj: null,
+    dcAdj: null,
+    inpAdj: null,
+    final: xScore
+  };
 
-  results.push({
-    scale: 'V',
-    name: 'Validity',
-    rawScore: validityScore,
-    brFromTable: null,
-    brXCor: null,
-    brHalfXCor: null,
-    brDAAdj: null,
-    brDDAdj: null,
-    brDCAdj: null,
-    brInpAdj: null,
-    finalBR: validityScore
-  });
+  const rawScoresFinal = {};
+  const baseRates = {};
+  for (let i = 0; i < scaleOrder.length; i++) {
+    const numericId = String(i + 1);
+    rawScoresFinal[numericId] = rawScores[scaleOrder[i]];
+    baseRates[numericId] = rawBR[scaleOrder[i]];
+  }
+  rawScoresFinal['25'] = rrawx;
+  baseRates['25'] = xScore;
 
   return {
-    scales: results,
+    xScore: xScore,
+    rawScores: rawScoresFinal,
+    baseRates: baseRates,
+    adjustedScores: adjustedScores,
     validity: {
       validityScore: validityScore,
-      isValid: validityScore <= 1,
-      disclosureScore: xScore,
-      rawX: rrawx
+      isValid: validityScore <= 1
     },
     adjustments: {
       xcor,
