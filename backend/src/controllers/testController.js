@@ -1,5 +1,5 @@
 import { MillonResult } from '../models/index.js';
-import { calculateScores, scaleNames } from '../services/mcmiScoring.js';
+import { calculateMcmiScores } from '../services/mcmiScoring.js';
 
 export const submitTest = async (req, res) => {
   try {
@@ -20,7 +20,13 @@ export const submitTest = async (req, res) => {
       });
     }
 
-    const report = calculateScores(answers, userInfo);
+    const answersMap = {};
+    answers.forEach((ans, idx) => {
+      answersMap[idx + 1] = ans;
+    });
+
+    const inpatientStatus = userInfo.inpatientStatus || 1;
+    const report = calculateMcmiScores(answersMap, userInfo.gender, inpatientStatus);
 
     const nameParts = (userInfo.name || '').split(' ');
     const firstName = nameParts[0] || '';
@@ -46,8 +52,7 @@ export const submitTest = async (req, res) => {
       message: 'Test submitted successfully',
       data: {
         resultId: millonResult.id,
-        report,
-        scaleNames
+        report
       }
     });
   } catch (error) {
@@ -102,8 +107,7 @@ export const getTestResult = async (req, res) => {
     res.json({
       success: true,
       data: {
-        result,
-        scaleNames
+        result
       }
     });
   } catch (error) {
