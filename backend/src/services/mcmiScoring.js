@@ -223,23 +223,24 @@ function calculateDDadjust(rawbrY, rawbrZ) {
 }
 
 function findTopTwoPersonalityPatterns(fordc) {
+  const personalityScales = ['1', '2', '3', '4', '5', '6A', '6B', '7', '8A', '8B'];
   let biggest = 0;
   let bigger = 0;
-  let g = 0;
-  let gp = 0;
+  let g = null;
+  let gp = null;
 
-  for (let j = 3; j <= 12; j++) {
-    if (biggest < fordc[j]) {
-      biggest = fordc[j];
-      g = j;
+  for (const scale of personalityScales) {
+    if (fordc[scale] !== null && fordc[scale] !== undefined && biggest < fordc[scale]) {
+      biggest = fordc[scale];
+      g = scale;
     }
   }
 
-  for (let j = 3; j <= 12; j++) {
-    if (j === g) continue;
-    if (bigger < fordc[j]) {
-      bigger = fordc[j];
-      gp = j;
+  for (const scale of personalityScales) {
+    if (scale === g) continue;
+    if (fordc[scale] !== null && fordc[scale] !== undefined && bigger < fordc[scale]) {
+      bigger = fordc[scale];
+      gp = scale;
     }
   }
 
@@ -344,156 +345,112 @@ export function calculateMcmiScores(answers, gender, inpatientStatus = 1) {
       break;
   }
 
-  for (let i = 0; i < scaleOrder.length; i++) {
-    const scale = scaleOrder[i];
-    const idx = i + 1;
+  const xcorScales = ['1', '2', '3', '4', '5', '6A', '6B', '7', '8A', '8B', 'N', 'B', 'T'];
+  const hxcorScales = ['S', 'C', 'P', 'SS', 'CC', 'PP'];
+  const daScales = ['2', '8B'];
+  const dacScales = ['C'];
+  const ddScales = ['S', 'C', 'A', 'H', 'D'];
 
-    if (![1, 2, 13, 14, 15, 22, 23, 24].includes(idx)) {
+  for (const scale of scaleOrder) {
+    if (xcorScales.includes(scale)) {
       aftercor[scale] = rawBR[scale] + xcor;
     } else {
-      aftercor[scale] = null;
+      aftercor[scale] = rawBR[scale];
     }
 
-    if ([13, 14, 15, 22, 23, 24].includes(idx)) {
+    if (hxcorScales.includes(scale)) {
       afterhcor[scale] = rawBR[scale] + hxcor;
     } else {
       afterhcor[scale] = null;
     }
 
-    if (idx === 4) {
+    if (daScales.includes(scale)) {
       dabr[scale] = aftercor[scale] - da;
-    } else if (idx === 12) {
-      dabr[scale] = aftercor[scale] - da;
-    } else if (idx === 14) {
+    } else if (dacScales.includes(scale)) {
       dabr[scale] = afterhcor[scale] - dac;
     } else {
       dabr[scale] = null;
     }
 
-    if (idx === 13) {
+    if (scale === 'S') {
       afterddcor[scale] = afterhcor[scale] + ddcontain;
-    } else if (idx === 14) {
+    } else if (scale === 'C') {
       afterddcor[scale] = dabr[scale] + ddcontain;
-    } else if ([16, 17, 19].includes(idx)) {
+    } else if (['A', 'H', 'D'].includes(scale)) {
       afterddcor[scale] = aftercor[scale] + ddcontain;
     } else {
       afterddcor[scale] = null;
     }
 
-    if ([4, 12].includes(idx)) {
-      fordc[idx] = dabr[scale];
+    if (daScales.includes(scale)) {
+      fordc[scale] = dabr[scale];
     } else {
-      fordc[idx] = aftercor[scale];
+      fordc[scale] = aftercor[scale];
     }
   }
 
   const { g, gp } = findTopTwoPersonalityPatterns(fordc);
 
-  for (let i = 0; i < scaleOrder.length; i++) {
-    const scale = scaleOrder[i];
-    const idx = i + 1;
+  const histrionicNarcCompulsivePatterns = ['4', '5', '7'];
+  const avoidantSelfDefeatPatterns = ['2', '8B'];
 
-    if (idx > 12) {
-      switch (idx) {
-        case 13:
-        case 14:
-        case 16:
-        case 17:
-        case 19:
-          afterdccor[scale] = afterddcor[scale];
-          break;
-        case 15:
-          afterdccor[scale] = afterhcor[scale];
-          break;
-        default:
-          afterdccor[scale] = null;
-          break;
+  for (const scale of scaleOrder) {
+    const isSeverePersOrClinical = ['S', 'C', 'P', 'A', 'H', 'D'].includes(scale);
+
+    if (isSeverePersOrClinical) {
+      if (['S', 'C', 'A', 'H', 'D'].includes(scale)) {
+        afterdccor[scale] = afterddcor[scale];
+      } else if (scale === 'P') {
+        afterdccor[scale] = afterhcor[scale];
       }
 
-      if ([6, 7, 10].includes(g) || gp === 10) {
-        switch (idx) {
-          case 13:
-          case 14:
-            if (afterdccor[scale] !== null) afterdccor[scale] += 4;
-            break;
-          case 15:
-            if (afterdccor[scale] !== null) afterdccor[scale] += 2;
-            break;
-          case 16:
-          case 19:
-            if (afterdccor[scale] !== null) afterdccor[scale] += 15;
-            break;
-          case 17:
-            if (afterdccor[scale] !== null) afterdccor[scale] += 13;
-            break;
+      if (histrionicNarcCompulsivePatterns.includes(g) || histrionicNarcCompulsivePatterns.includes(gp)) {
+        if (['S', 'C'].includes(scale)) {
+          if (afterdccor[scale] !== null) afterdccor[scale] += 4;
+        } else if (scale === 'P') {
+          if (afterdccor[scale] !== null) afterdccor[scale] += 2;
+        } else if (['A', 'D'].includes(scale)) {
+          if (afterdccor[scale] !== null) afterdccor[scale] += 15;
+        } else if (scale === 'H') {
+          if (afterdccor[scale] !== null) afterdccor[scale] += 13;
         }
       }
 
-      if ([12, 4].includes(g) || gp === 4) {
-        switch (idx) {
-          case 13:
-            if (afterdccor[scale] !== null) afterdccor[scale] -= 2;
-            break;
-          case 14:
-          case 15:
-            if (afterdccor[scale] !== null) afterdccor[scale] -= 6;
-            break;
-          case 16:
-            if (afterdccor[scale] !== null) afterdccor[scale] -= 7;
-            break;
-          case 17:
-          case 19:
-            if (afterdccor[scale] !== null) afterdccor[scale] -= 5;
-            break;
+      if (avoidantSelfDefeatPatterns.includes(g) || avoidantSelfDefeatPatterns.includes(gp)) {
+        if (scale === 'S') {
+          if (afterdccor[scale] !== null) afterdccor[scale] -= 2;
+        } else if (['C', 'P'].includes(scale)) {
+          if (afterdccor[scale] !== null) afterdccor[scale] -= 6;
+        } else if (scale === 'A') {
+          if (afterdccor[scale] !== null) afterdccor[scale] -= 7;
+        } else if (['H', 'D'].includes(scale)) {
+          if (afterdccor[scale] !== null) afterdccor[scale] -= 5;
         }
       }
+    } else {
+      afterdccor[scale] = null;
     }
 
-    if (idx === 22) {
+    if (scale === 'SS') {
       afterinp[scale] = afterhcor[scale] + inpAdjustments.SS;
-    } else if (idx === 23) {
+    } else if (scale === 'CC') {
       afterinp[scale] = afterhcor[scale] + inpAdjustments.CC;
-    } else if (idx === 24) {
+    } else if (scale === 'PP') {
       afterinp[scale] = afterhcor[scale] + inpAdjustments.PP;
     } else {
       afterinp[scale] = null;
     }
 
-    switch (idx) {
-      case 1:
-      case 2:
-        afterall[scale] = rawBR[scale];
-        break;
-      case 3:
-      case 5:
-      case 6:
-      case 7:
-      case 8:
-      case 9:
-      case 10:
-      case 11:
-      case 18:
-      case 20:
-      case 21:
-        afterall[scale] = aftercor[scale];
-        break;
-      case 4:
-      case 12:
-        afterall[scale] = dabr[scale];
-        break;
-      case 13:
-      case 14:
-      case 15:
-      case 16:
-      case 17:
-      case 19:
-        afterall[scale] = afterdccor[scale];
-        break;
-      case 22:
-      case 23:
-      case 24:
-        afterall[scale] = afterinp[scale];
-        break;
+    if (['Y', 'Z'].includes(scale)) {
+      afterall[scale] = rawBR[scale];
+    } else if (['1', '3', '4', '5', '6A', '6B', '7', '8A', 'N', 'B', 'T'].includes(scale)) {
+      afterall[scale] = aftercor[scale];
+    } else if (['2', '8B'].includes(scale)) {
+      afterall[scale] = dabr[scale];
+    } else if (['S', 'C', 'P', 'A', 'H', 'D'].includes(scale)) {
+      afterall[scale] = afterdccor[scale];
+    } else if (['SS', 'CC', 'PP'].includes(scale)) {
+      afterall[scale] = afterinp[scale];
     }
 
     if (rawScores[scale] === 0 && afterall[scale] > 0) {
